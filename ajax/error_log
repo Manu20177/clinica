@@ -1,0 +1,262 @@
+[29-Jun-2025 22:48:48 America/Boise] Iniciando envío de correo...
+[29-Jun-2025 22:48:48 America/Boise] POST data: Array
+(
+    [bd_correos] => individual
+    [correo_individual] => manuelmacias698@gmail.com
+    [subject] => manuelmacias698@gmail.com
+    [description] => <p>manuelmacias698@gmail.com</p>
+)
+
+[29-Jun-2025 22:48:48 America/Boise] FILES: Array
+(
+    [attachments] => Array
+        (
+            [name] => Array
+                (
+                    [0] => 
+                )
+
+            [full_path] => Array
+                (
+                    [0] => 
+                )
+
+            [type] => Array
+                (
+                    [0] => 
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => 
+                )
+
+            [error] => Array
+                (
+                    [0] => 4
+                )
+
+            [size] => Array
+                (
+                    [0] => 0
+                )
+
+        )
+
+)
+
+[29-Jun-2025 22:48:48 America/Boise] PHP Fatal error:  Uncaught Error: Class "PHPMailer" not found in /home2/crediuj0/public_html/aulaccf/models/correoModel.php:16
+Stack trace:
+#0 /home2/crediuj0/public_html/aulaccf/ajax/ajaxCorreo.php(12): correoModel->send_email_controller()
+#1 {main}
+  thrown in /home2/crediuj0/public_html/aulaccf/models/correoModel.php on line 16
+[29-Jun-2025 22:59:44 America/Boise] PHP Warning:  Undefined array key "userId" in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php on line 139
+[29-Jun-2025 22:59:44 America/Boise] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'usuario_id' cannot be null in /home2/crediuj0/public_html/aulaccf/models/correoModel.php:21
+Stack trace:
+#0 /home2/crediuj0/public_html/aulaccf/models/correoModel.php(21): PDOStatement->execute()
+#1 /home2/crediuj0/public_html/aulaccf/controllers/correoController.php(147): correoModel->save_email_model(Array)
+#2 /home2/crediuj0/public_html/aulaccf/ajax/ajaxCorreo.php(12): correoController->send_email_controller()
+#3 {main}
+  thrown in /home2/crediuj0/public_html/aulaccf/models/correoModel.php on line 21
+[29-Jun-2025 23:46:54 America/Boise] PHP Warning:  move_uploaded_file(../attachments/email/WhatsApp_Image_2025-06-30_at_12.00.58_AM.jpeg): Failed to open stream: No such file or directory in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php on line 132
+[29-Jun-2025 23:46:54 America/Boise] PHP Warning:  move_uploaded_file(): Unable to move &quot;/tmp/phpTm7CPh&quot; to &quot;../attachments/email/WhatsApp_Image_2025-06-30_at_12.00.58_AM.jpeg&quot; in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php on line 132
+[30-Jun-2025 00:11:37 America/Boise] PHP Warning:  Array to string conversion in /home2/crediuj0/public_html/aulaccf/models/correoModel.php on line 20
+[30-Jun-2025 00:40:15 America/Boise] PHP Fatal error:  Uncaught TypeError: json_decode(): Argument #1 ($json) must be of type string, array given in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php:74
+Stack trace:
+#0 /home2/crediuj0/public_html/aulaccf/controllers/correoController.php(74): json_decode(Array)
+#1 /home2/crediuj0/public_html/aulaccf/ajax/ajaxCorreo.php(11): correoController->send_email_controller()
+#2 {main}
+  thrown in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php on line 74
+[30-Jun-2025 00:44:26 America/Boise] PHP Fatal error:  Uncaught TypeError: json_decode(): Argument #1 ($json) must be of type string, array given in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php:60
+Stack trace:
+#0 /home2/crediuj0/public_html/aulaccf/controllers/correoController.php(60): json_decode(Array)
+#1 /home2/crediuj0/public_html/aulaccf/ajax/ajaxCorreo.php(11): correoController->send_email_controller()
+#2 {main}
+  thrown in /home2/crediuj0/public_html/aulaccf/controllers/correoController.php on line 60
+[30-Jun-2025 14:28:13 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[30-Jun-2025 14:28:13 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[30-Jun-2025 14:28:13 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[30-Jun-2025 14:28:13 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[30-Jun-2025 14:28:13 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[30-Jun-2025 14:28:13 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[30-Jun-2025 14:32:47 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[30-Jun-2025 14:32:47 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[30-Jun-2025 14:32:48 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[30-Jun-2025 14:32:48 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[30-Jun-2025 14:32:48 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[30-Jun-2025 14:32:48 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[02-Jul-2025 09:54:19 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 09:54:19 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 09:57:25 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[02-Jul-2025 09:57:25 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[02-Jul-2025 15:59:30 America/Boise] PHP Warning:  Trying to access array offset on value of type bool in /home2/crediuj0/public_html/aulaccf/controllers/videoController.php on line 528
+[02-Jul-2025 17:27:10 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:27:10 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:30:46 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:30:46 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:32:32 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:32:32 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 16:37:25 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:37:35 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:37:35 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 16:41:45 America/Boise] PHP Warning:  Undefined array key 3 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 272
+[02-Jul-2025 16:41:45 America/Boise] PHP Warning:  Undefined array key 4 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 273
+[02-Jul-2025 16:41:45 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:41:54 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:41:54 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:44:18 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:44:18 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:47:43 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:47:43 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 16:48:06 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:48:15 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:48:15 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 16:50:25 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:50:34 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:50:34 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 16:58:32 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:58:39 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:58:39 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 18:01:27 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 18:01:27 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 17:02:18 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 18:02:25 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 18:02:25 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 20:54:09 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 20:54:09 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 19:55:47 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 20:55:52 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 20:55:52 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 20:32:48 America/Boise] PHP Warning:  Undefined array key 5 in /home2/crediuj0/public_html/aulaccf/controllers/encuestaentrevistaController.php on line 274
+[02-Jul-2025 21:32:53 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 21:32:53 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 21:32:53 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 21:32:53 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 21:37:05 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 21:37:05 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[02-Jul-2025 21:40:39 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[02-Jul-2025 21:40:39 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 14:30:15 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 14:30:15 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 15:18:25 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 15:18:25 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 15:20:28 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 15:20:28 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 15:34:00 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 15:34:00 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 16:04:08 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 16:04:08 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 16:52:25 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 16:52:25 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 16:54:42 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 16:54:42 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 16:55:09 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 16:55:09 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 16:57:47 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 16:57:47 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 17:33:45 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 17:33:45 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 17:35:17 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 17:35:17 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 18:00:29 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 18:00:29 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[03-Jul-2025 18:01:40 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[03-Jul-2025 18:01:40 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 12:35:05 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 12:35:05 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 12:36:17 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 12:36:17 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 12:54:20 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 12:54:20 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 12:55:20 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 12:55:20 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 13:11:23 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 13:11:23 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 13:12:13 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 13:12:13 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 13:28:05 America/Boise] PHP Warning:  Trying to access array offset on value of type bool in /home2/crediuj0/public_html/aulaccf/controllers/videoController.php on line 528
+[04-Jul-2025 14:45:44 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 14:45:44 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 14:47:08 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 14:47:08 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 15:51:48 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 15:51:48 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 15:54:57 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 15:54:57 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 17:37:57 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 17:37:57 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[04-Jul-2025 17:39:48 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[04-Jul-2025 17:39:48 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[07-Jul-2025 09:36:45 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:36:45 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:36:46 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:36:46 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:36:47 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:36:47 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:42:17 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:42:17 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:43:12 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:43:12 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:43:19 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:43:19 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:43:21 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 09:43:21 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 10:23:04 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 10:23:04 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 10:54:18 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[07-Jul-2025 10:54:18 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[07-Jul-2025 10:59:01 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 10:59:01 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[07-Jul-2025 11:20:40 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[07-Jul-2025 11:20:40 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 10:25:49 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[08-Jul-2025 10:25:49 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[08-Jul-2025 11:31:24 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 11:31:24 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 15:20:28 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 15:20:28 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 15:44:07 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[08-Jul-2025 15:44:07 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[08-Jul-2025 15:45:11 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 15:45:11 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 16:12:29 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 16:12:29 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 16:34:03 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[08-Jul-2025 16:34:03 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[08-Jul-2025 16:35:01 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 16:35:01 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 16:35:11 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[08-Jul-2025 16:35:11 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[10-Jul-2025 14:10:35 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[10-Jul-2025 14:10:35 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[13-Jul-2025 00:30:14 America/Boise] PHP Warning:  Trying to access array offset on value of type bool in /home2/crediuj0/public_html/aulaccf/controllers/cursoController.php on line 685
+[16-Jul-2025 15:34:15 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[16-Jul-2025 15:34:15 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[16-Jul-2025 15:35:32 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[16-Jul-2025 15:35:32 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[16-Jul-2025 17:29:55 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[16-Jul-2025 17:29:55 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[16-Jul-2025 17:30:20 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[16-Jul-2025 17:30:20 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[16-Jul-2025 17:30:48 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[16-Jul-2025 17:30:48 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[17-Jul-2025 14:53:15 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[17-Jul-2025 14:53:15 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[17-Jul-2025 14:54:45 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[17-Jul-2025 14:54:45 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[17-Jul-2025 15:28:03 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[17-Jul-2025 15:28:03 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEvaluacion.php on line 31
+[17-Jul-2025 15:28:51 America/Guayaquil] PHP Warning:  Undefined global variable $_SESSION in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
+[17-Jul-2025 15:28:51 America/Guayaquil] PHP Warning:  Trying to access array offset on value of type null in /home2/crediuj0/public_html/aulaccf/ajax/ajaxCargarEncuesta.php on line 30
