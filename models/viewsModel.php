@@ -11,7 +11,10 @@
 				$views=="account" ||
 				$views=="user" ||
 				$views=="userlist" ||
-				$views=="userinfo" ||		
+				$views=="userinfo" ||	
+				$views=="sucursal" ||	
+				$views=="sucursallist" ||		
+				$views=="sucursalinfo" ||		
 				
 			
 				$views=="backup" ||	

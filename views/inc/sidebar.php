@@ -82,6 +82,26 @@ function isOpenSubMenu($pages, $currentPage) {
 					</li>
 				</ul>
 			</li>
+			<!-- Sucursales -->
+
+
+			<li class="<?php echo isActiveMenu(['sucursal','sucursallist'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-account zmdi-hc-fw"></i> Sucursales <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['sucursal','sucursallist'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>sucursal/" class="<?php echo ($currentPage=='sucursal')?'active':''; ?>">
+							<i class="zmdi zmdi-account-add zmdi-hc-fw"></i> Nuevo
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>sucursallist/" class="<?php echo ($currentPage=='sucursallist')?'active':''; ?>">
+							<i class="zmdi zmdi-accounts zmdi-hc-fw"></i> Listado
+						</a>
+					</li>
+				</ul>
+			</li>
 
 			<!-- Usuarios -->
 			<li class="<?php echo isActiveMenu(['user','userlist'], $currentPage); ?>">
