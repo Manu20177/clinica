@@ -23,8 +23,7 @@
 			$provincia=self::clean_string($_POST['provincia']);
 			$canton=self::clean_string($_POST['canton']);
 			$parroquia=self::clean_string($_POST['parroquia']);
-			$actividad=self::clean_string($_POST['actividad']);
-			$etnia=self::clean_string($_POST['etnia']);
+
 
 			if ($tipousu==3) {
 				# code...
@@ -66,9 +65,7 @@
 							"Nivel"=>$nivel,
 							"Provincia"=>$provincia,
 							"Canton"=>$canton,
-							"Parroquia"=>$parroquia,
-							"Actividad"=>$actividad,
-							"Etnia"=>$etnia
+							"Parroquia"=>$parroquia
 							
 						];
 
@@ -292,8 +289,6 @@
 						<th style="display:none;">Canton</th>
 						<th style="display:none;">Cod. Parroquia</th>
 						<th style="display:none;">Parroquia</th>
-						<th style="display:none;">Actividad</th>
-						<th style="display:none;">Etnia</th>
 						<th class="text-center">A. Datos</th>
 						<th class="text-center">A. Cuenta</th>
 						<th class="text-center">Eliminar</th>
@@ -322,8 +317,6 @@
 						<td style="display:none;">' . $rows['canton'] . '</td>
 						<td style="display:none;">' . $rows['cod_pa'] . '</td>
 						<td style="display:none;">' . $rows['parroquia'] . '</td>
-						<td style="display:none;">' . $rows['Actividad'] . '</td>
-						<td style="display:none;">' . $rows['Etnia'] . '</td>
 								
 						<td>
 							<a href="'.SERVERURL.'userinfo/'.$rows['Codigo'].'/" class="btn btn-success btn-raised btn-xs">
@@ -394,8 +387,7 @@
 			$provincia=self::clean_string($_POST['provincia']);
 			$canton=self::clean_string($_POST['canton']);
 			$parroquia=self::clean_string($_POST['parroquia']);
-			$actividad=self::clean_string($_POST['actividad']);
-			$etnia=self::clean_string($_POST['etnia']);
+	
 
 			$data=[
 				"Codigo"=>$code,
@@ -408,9 +400,7 @@
 				"Nivel"=>$nivel,
 				"Provincia"=>$provincia,
 				"Canton"=>$canton,
-				"Parroquia"=>$parroquia,
-				"Actividad"=>$actividad,
-				"Etnia"=>$etnia
+				"Parroquia"=>$parroquia
 				
 			];
 

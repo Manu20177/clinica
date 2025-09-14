@@ -121,48 +121,9 @@
 											</select>
 										</div>
 									</div>
-									<div class="col-xs-12 col-sm-6">
-										<div class="form-group label-floating">
-											<label class="control-label">Actividad Económica *</label>
-											<select class="form-control" name="actividad" id="" >
-												<option value="Agricultura" <?php if($rows['Actividad'] == 'Agricultura') echo 'selected'; ?>>Agricultura</option>
-												<option value="Ganadería" <?php if($rows['Actividad'] == 'Ganadería') echo 'selected'; ?>>Ganadería</option>
-												<option value="Pesca" <?php if($rows['Actividad'] == 'Pesca') echo 'selected'; ?>>Pesca</option>
-												<option value="Silvicultura" <?php if($rows['Actividad'] == 'Silvicultura') echo 'selected'; ?>>Silvicultura</option>
-												<option value="Minería" <?php if($rows['Actividad'] == 'Minería') echo 'selected'; ?>>Minería</option>
-												<option value="Petróleo y Gas" <?php if($rows['Actividad'] == 'Petróleo y Gas') echo 'selected'; ?>>Petróleo y Gas</option>
-												<option value="Industria Manufacturera" <?php if($rows['Actividad'] == 'Industria Manufacturera') echo 'selected'; ?>>Industria Manufacturera</option>
-												<option value="Construcción" <?php if($rows['Actividad'] == 'Construcción') echo 'selected'; ?>>Construcción</option>
-												<option value="Comercio" <?php if($rows['Actividad'] == 'Comercio') echo 'selected'; ?>>Comercio</option>
-												<option value="Servicios" <?php if($rows['Actividad'] == 'Servicios') echo 'selected'; ?>>Servicios</option>
-												<option value="Turismo" <?php if($rows['Actividad'] == 'Turismo') echo 'selected'; ?>>Turismo</option>
-												<option value="Tecnología e Informática" <?php if($rows['Actividad'] == 'Tecnología e Informática') echo 'selected'; ?>>Tecnología e Informática</option>
-												<option value="Educación" <?php if($rows['Actividad'] == 'Educación') echo 'selected'; ?>>Educación</option>
-												<option value="Salud" <?php if($rows['Actividad'] == 'Salud') echo 'selected'; ?>>Salud</option>
-												<option value="Artes y Entretenimiento" <?php if($rows['Actividad'] == 'Artes y Entretenimiento') echo 'selected'; ?>>Artes y Entretenimiento</option>
-												<option value="Transporte y Logística" <?php if($rows['Actividad'] == 'Transporte y Logística') echo 'selected'; ?>>Transporte y Logística</option>
-												<option value="Finanzas y Banca" <?php if($rows['Actividad'] == 'Finanzas y Banca') echo 'selected'; ?>>Finanzas y Banca</option>
-												<option value="Administración Pública" <?php if($rows['Actividad'] == 'Administración Pública') echo 'selected'; ?>>Administración Pública</option>
-											</select>
-										</div>
-									</div>
+									
 
-									<div class="col-xs-12 col-sm-6">
-										<div class="form-group label-floating">
-											<label class="control-label">Grupo Étnico *</label>
-											<select class="form-control" name="etnia" id="" >
-												<option value="Mestizo" <?php if($rows['Etnia'] == 'Mestizo') echo 'selected'; ?>>Mestizo</option>
-												<option value="Indígena" <?php if($rows['Etnia'] == 'Indígena') echo 'selected'; ?>>Indígena</option>
-												<option value="Afroecuatoriano" <?php if($rows['Etnia'] == 'Afroecuatoriano') echo 'selected'; ?>>Afroecuatoriano</option>
-												<option value="Blanco" <?php if($rows['Etnia'] == 'Blanco') echo 'selected'; ?>>Blanco</option>
-												<option value="Montuvio" <?php if($rows['Etnia'] == 'Montuvio') echo 'selected'; ?>>Montuvio</option>
-												<option value="Negro" <?php if($rows['Etnia'] == 'Negro') echo 'selected'; ?>>Negro</option>
-												<option value="Mulato" <?php if($rows['Etnia'] == 'Mulato') echo 'selected'; ?>>Mulato</option>
-												<option value="Asiático" <?php if($rows['Etnia'] == 'Asiático') echo 'selected'; ?>>Asiático</option>
-												<option value="Otro" <?php if($rows['Etnia'] == 'Otro') echo 'selected'; ?>>Otro</option>
-											</select>
-										</div>
-									</div>
+									
 				    			</div>
 				    		</div>
 				    	</fieldset>

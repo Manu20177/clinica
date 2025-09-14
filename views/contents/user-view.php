@@ -119,48 +119,9 @@
 											</select>
 										</div>
 									</div>
-									<div class="col-xs-12 col-sm-6">
-								    	<div class="form-group label-floating">
-										  	<label class="control-label">Actividad Economica *</label>
-											<select class="form-control" name="actividad" id="" >
-												<option value="Agricultura">Agricultura</option>
-												<option value="Ganadería">Ganadería</option>
-												<option value="Pesca">Pesca</option>
-												<option value="Silvicultura">Silvicultura</option>
-												<option value="Minería">Minería</option>
-												<option value="Petróleo y Gas">Petróleo y Gas</option>
-												<option value="Industria Manufacturera">Industria Manufacturera</option>
-												<option value="Construcción">Construcción</option>
-												<option value="Comercio">Comercio</option>
-												<option value="Servicios">Servicios</option>
-												<option value="Turismo">Turismo</option>
-												<option value="Tecnología e Informática">Tecnología e Informática</option>
-												<option value="Educación">Educación</option>
-												<option value="Salud">Salud</option>
-												<option value="Artes y Entretenimiento">Artes y Entretenimiento</option>
-												<option value="Transporte y Logística">Transporte y Logística</option>
-												<option value="Finanzas y Banca">Finanzas y Banca</option>
-												<option value="Administración Pública">Administración Pública</option>
-											</select>
-										</div>
-				    				</div>
+					
 
-									<div class="col-xs-12 col-sm-6">
-								    	<div class="form-group label-floating">
-										  	<label class="control-label">Grupo Etnico *</label>
-											<select class="form-control" name="etnia" id="" >
-												<option value="Mestizo">Mestizo</option>
-												<option value="Indígena">Indígena</option>
-												<option value="Afroecuatoriano">Afroecuatoriano</option>
-												<option value="Blanco">Blanco</option>
-												<option value="Montuvio">Montuvio</option>
-												<option value="Negro">Negro</option>
-												<option value="Mulato">Mulato</option>
-												<option value="Asiático">Asiático</option>
-												<option value="Otro">Otro</option>
-											</select>
-										</div>
-				    				</div>
+									
 
 
 									
