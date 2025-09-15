@@ -1,10 +1,10 @@
 <?php if($_SESSION['userType']=="Secretaria"): ?>
 <div class="container-fluid">
 	<div class="page-header">
-	  <h1 class="text-titles"><i class="zmdi zmdi-face zmdi-hc-fw"></i> Usuarios</h1>
+	  <h1 class="text-titles"><i class="zmdi zmdi-face zmdi-hc-fw"></i> Pacientes</h1>
 	</div>
 	<p class="lead">
-		Bienvenido a la sección de usuarios, aquí podrás registrar nuevos usuarios (Los campos marcados con * son obligatorios para registrar un medico o una secretaria).
+		Bienvenido a la sección de pacientes, aquí podrás registrar nuevos pacientes (Los campos marcados con * son obligatorios para registrar un paciente).
 	</p>
 </div>
 <div class="container-fluid">
@@ -39,7 +39,7 @@
 		<div class="col-xs-12">
 			<div class="panel panel-info">
 				<div class="panel-heading">
-				    <h3 class="panel-title"><i class="zmdi zmdi-plus"></i> Nuevo Usuario</h3>
+				    <h3 class="panel-title"><i class="zmdi zmdi-plus"></i> Nuevo Pacientes</h3>
 				</div>
 			  	<div class="panel-body">
 				    <form action="" method="POST" enctype="multipart/form-data" autocomplete="off">

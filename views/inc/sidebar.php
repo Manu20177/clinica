@@ -158,6 +158,92 @@ function isOpenSubMenu($pages, $currentPage) {
 				</ul>
 			</li>
 
+			<li class="<?php echo isActiveMenu(['agenda','agendalist','agendaderivaciones','lista_espera','notificaciones'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Agenda y Lista de Espera <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['agenda','agendalist','agendaderivaciones','lista_espera','notificaciones'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>agenda/" class="<?php echo ($currentPage=='agenda')?'active':''; ?>">
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Citas / Agenda
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>agendalist/" class="<?php echo ($currentPage=='agendaelist')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Catálogo de Especialidades
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>agendaderivaciones/" class="<?php echo ($currentPage=='agendaderivaciones')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Bandeja de Derivaciones
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>lista_espera/" class="<?php echo ($currentPage=='lista_espera')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Lista de Espera
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>notificaciones/" class="<?php echo ($currentPage=='notificaciones')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Notificaciones
+						</a>
+					</li>
+				</ul>
+			</li>
+
+			<li class="<?php echo isActiveMenu(['derivacion','derivacionlist'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Derivación y Coordinación <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['derivacion','derivacionlist'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>derivacion/" class="<?php echo ($currentPage=='derivacion')?'active':''; ?>">
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Nuevo
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>derivacionlist/" class="<?php echo ($currentPage=='derivacionlist')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Listado
+						</a>
+					</li>
+				</ul>
+			</li>
+			<li class="<?php echo isActiveMenu(['cobros','cobroslist'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Ingreso y Cobros Internos <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['cobros','cobroslist'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>cobros/" class="<?php echo ($currentPage=='cobros')?'active':''; ?>">
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Nuevo
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>cobroslist/" class="<?php echo ($currentPage=='cobroslist')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Listado
+						</a>
+					</li>
+				</ul>
+			</li>
+			<li class="<?php echo isActiveMenu(['reportes','reporteslist'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Reportes <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['reportes','reporteslist'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>reportes/" class="<?php echo ($currentPage=='reportes')?'active':''; ?>">
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Nuevo
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>reporteslist/" class="<?php echo ($currentPage=='reporteslist')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Listado
+						</a>
+					</li>
+				</ul>
+			</li>
+			
+
 
 			<?php else: ?>
 			<li>
