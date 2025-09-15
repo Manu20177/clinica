@@ -32,6 +32,7 @@ function isOpenSubMenu($pages, $currentPage) {
 				<img style="width: 125px; height: auto;" src="<?php echo SERVERURL; ?>views/assets/img/logo.png" alt="UserIcon">
 				<figcaption class="text-center text-titles"><?php echo $_SESSION['userNombre']; ?></figcaption>
 				<b><figcaption class="text-center text-titles"><?php echo $_SESSION['userType']; ?></figcaption></b>			
+				<b><figcaption class="text-center text-titles"><?php echo $_SESSION['userSuc']; ?></figcaption></b>			
 			</figure>
 			<ul class="full-box list-unstyled text-center">
 				<li>
@@ -134,11 +135,29 @@ function isOpenSubMenu($pages, $currentPage) {
 					<i class="zmdi zmdi-view-dashboard zmdi-hc-fw"></i> Inicio
 				</a>
 			</li>
-			<li>
+			<!-- <li>
 				<a href="<?php echo SERVERURL; ?>videonow/" class="<?php echo ($currentPage=='videonow')?'active':''; ?>">
 					<i class="zmdi zmdi-tv-play zmdi-hc-fw"></i> prueba secretaria
 				</a>
+			</li> -->
+			<li class="<?php echo isActiveMenu(['paciente','pacientelist'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Pacientes <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['paciente','pacientelist'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>paciente/" class="<?php echo ($currentPage=='paciente')?'active':''; ?>">
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Nuevo
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>pacientelist/" class="<?php echo ($currentPage=='pacientelist')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Listado
+						</a>
+					</li>
+				</ul>
 			</li>
+
 
 			<?php else: ?>
 			<li>

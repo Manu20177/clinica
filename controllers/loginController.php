@@ -28,6 +28,8 @@
 					$_SESSION['userNombre']=$name;
 					$_SESSION['userName']=$row['Usuario'];
 					$_SESSION['userType']=$row['Tipo'];
+					$_SESSION['userIdSuc']=$row['id_suc'];
+					$_SESSION['userSuc']=$row['suc'];
 					$_SESSION['userKey']=$row['Codigo'];
 					$_SESSION['userPrivilege']=$row['Privilegio'];
 					$_SESSION['userToken']=md5(uniqid(mt_rand(), true));

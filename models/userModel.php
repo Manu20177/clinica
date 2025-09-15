@@ -9,7 +9,7 @@
 
 		/*----------  Add user Model  ----------*/
 		public function add_user_model($data){
-			$query=self::connect()->prepare("INSERT INTO usuarios(Codigo,Nombres,Apellidos,Email,Cedula,Telefono,Tipo,Nivel,Provincia,Canton,Parroquia) VALUES(:Codigo,:Nombres,:Apellidos,:Email,:Cedula,:Telefono,:Tipo,:Nivel,:Provincia,:Canton,:Parroquia)");
+			$query=self::connect()->prepare("INSERT INTO usuarios(Codigo,Nombres,Apellidos,Email,Cedula,Telefono,Tipo,Sucursal,Provincia,Canton,Parroquia) VALUES(:Codigo,:Nombres,:Apellidos,:Email,:Cedula,:Telefono,:Tipo,:id_suc,:Provincia,:Canton,:Parroquia)");
 			$query->bindParam(":Codigo",$data['Codigo']);
 			$query->bindParam(":Nombres",$data['Nombres']);
 			$query->bindParam(":Apellidos",$data['Apellidos']);
@@ -17,7 +17,7 @@
 			$query->bindParam(":Cedula",$data['Cedula']);
 			$query->bindParam(":Telefono",$data['Telefono']);
 			$query->bindParam(":Tipo",$data['Tipousu']);
-			$query->bindParam(":Nivel",$data['Nivel']);
+			$query->bindParam(":id_suc",$data['id_suc']);
 			$query->bindParam(":Provincia",$data['Provincia']);
 			$query->bindParam(":Canton",$data['Canton']);
 			$query->bindParam(":Parroquia",$data['Parroquia']);
@@ -32,7 +32,8 @@
 			if($data['Tipo']=="Count"){
 				$query=self::connect()->prepare("SELECT Codigo FROM usuarios");
 			}elseif($data['Tipo']=="Only"){
-				$query=self::connect()->prepare("SELECT * FROM usuarios WHERE Codigo=:Codigo");
+				$query=self::connect()->prepare("SELECT u.*,s.nombre,s.id_suc FROM usuarios u 
+LEFT JOIN sucursales s on s.id_suc=u.Sucursal WHERE Codigo=:Codigo");
 				$query->bindParam(":Codigo",$data['Codigo']);
 			}
 			$query->execute();
@@ -51,7 +52,7 @@
 
 		/*----------  Update user Model  ----------*/
 		public function update_user_model($data){
-			$query=self::connect()->prepare("UPDATE usuarios SET Nombres=:Nombres,Apellidos=:Apellidos,Email=:Email,Cedula=:Cedula,Telefono=:Telefono,Tipo=:Tipo,Nivel=:Nivel,Provincia=:Provincia,Canton=:Canton,Parroquia=:Parroquia WHERE Codigo=:Codigo");
+			$query=self::connect()->prepare("UPDATE usuarios SET Nombres=:Nombres,Apellidos=:Apellidos,Email=:Email,Cedula=:Cedula,Telefono=:Telefono,Tipo=:Tipo,Sucursal=:id_suc,Provincia=:Provincia,Canton=:Canton,Parroquia=:Parroquia WHERE Codigo=:Codigo");
 			$query->bindParam(":Nombres",$data['Nombres']);
 			$query->bindParam(":Apellidos",$data['Apellidos']);
 			$query->bindParam(":Email",$data['Email']);
@@ -59,7 +60,7 @@
 			$query->bindParam(":Telefono",$data['Telefono']);
 			$query->bindParam(":Tipo",$data['Tipousu']);
 			$query->bindParam(":Codigo",$data['Codigo']);
-			$query->bindParam(":Nivel",$data['Nivel']);
+			$query->bindParam(":id_suc",$data['id_suc']);
 			$query->bindParam(":Provincia",$data['Provincia']);
 			$query->bindParam(":Canton",$data['Canton']);
 			$query->bindParam(":Parroquia",$data['Parroquia']);

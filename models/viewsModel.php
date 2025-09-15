@@ -15,6 +15,9 @@
 				$views=="sucursal" ||	
 				$views=="sucursallist" ||		
 				$views=="sucursalinfo" ||		
+				$views=="paciente" ||
+				$views=="pacientelist" ||
+				$views=="pacienteinfo" ||	
 				
 			
 				$views=="backup" ||	

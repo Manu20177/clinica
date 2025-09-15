@@ -9,7 +9,7 @@ class loginModel extends mainModel {
 
     /*---------- Modelo para iniciar sesión - Model to log in ----------*/
     public function login_session_start_model($data) {
-        $query = self::connect()->prepare("SELECT c.*,e.Nombres,e.Apellidos FROM cuenta c LEFT JOIN usuarios e on e.Codigo=c.Codigo WHERE c.Usuario = :Usuario AND c.Clave = :Clave");
+        $query = self::connect()->prepare("SELECT c.*,e.Nombres,e.Apellidos, s.nombre as suc,s.id_suc FROM cuenta c LEFT JOIN usuarios e on e.Codigo=c.Codigo LEFT JOIN usuarios u on u.Codigo=c.Codigo LEFT JOIN sucursales s on s.id_suc=u.Sucursal WHERE c.Usuario = :Usuario AND c.Clave = :Clave");
         $query->bindParam(":Usuario", $data['Usuario']);
         $query->bindParam(":Clave", $data['Clave']);
         $query->execute();

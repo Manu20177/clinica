@@ -1,118 +1,74 @@
 <?php
 	if($actionsRequired){
-		require_once "../models/userModel.php";
+		require_once "../models/pacienteModel.php";
 	}else{ 
-		require_once "./models/userModel.php";
+		require_once "./models/pacienteModel.php";
 	}
 
-	class userController extends userModel{
+	class pacienteController extends pacienteModel{
 
-		/*----------  Add user Controller  ----------*/
-		public function add_user_controller(){
-			$name=self::clean_string($_POST['name']);
-			$lastname=self::clean_string($_POST['lastname']);
-			$gender=self::clean_string($_POST['gender']);
-			$email=self::clean_string($_POST['email']);
-			$cedula=self::clean_string($_POST['cedula']);
-			$telefono=self::clean_string($_POST['telefono']);
-			$tipousu=self::clean_string($_POST['tipousu']);
-			$username=self::clean_string($_POST['username']);
-			$password1=self::clean_string($_POST['password1']);
-			$password2=self::clean_string($_POST['password2']);
-			$id_suc=self::clean_string($_POST['id_suc']);
-			$provincia=self::clean_string($_POST['provincia']);
-			$canton=self::clean_string($_POST['canton']);
-			$parroquia=self::clean_string($_POST['parroquia']);
+		/*----------  Add paciente Controller  ----------*/
+		public function add_paciente_controller(){
+			$cedula             = self::clean_string($_POST['cedula']);
+			$nombres            = self::clean_string($_POST['nombres']);
+			$apellidos          = self::clean_string($_POST['apellidos']);
+			$fecha_nacimiento   = self::clean_string($_POST['fecha_nacimiento']);
+			$genero             = self::clean_string($_POST['genero']);
+			$telefono           = self::clean_string($_POST['telefono']);
+			$correo             = self::clean_string($_POST['correo']);
+			$direccion          = self::clean_string($_POST['direccion']);
+			$estado_civil       = self::clean_string($_POST['estado_civil']);
+			$tipo_sangre        = self::clean_string($_POST['tipo_sangre']);
+			$alergias           = self::clean_string($_POST['alergias']);
+			$enfermedades       = self::clean_string($_POST['enfermedades']);
+			$id_suc             = $_SESSION['userIdSuc'];
+			$actualizado_por    = $_SESSION['userKey'];
 
 
-			if ($tipousu==3) {
-				# code...
-				$Tipou="Secretaria";
 
-			}else {
-				# code...
-				$Tipou="Medico";
+			$query2=self::execute_single_query("SELECT id_paciente FROM pacientes");
+			$correlative=($query2->rowCount())+1;
 
-			}
+			$code=self::generate_code("PAC",5,$correlative);
 
-			if($password1!="" || $password2!=""){
-				if($password1==$password2){
-					$query1=self::execute_single_query("SELECT Usuario FROM cuenta WHERE Usuario='$username'");
-					if($query1->rowCount()<=0){
-						$query2=self::execute_single_query("SELECT id FROM cuenta");
-						$correlative=($query2->rowCount())+1;
+			$datapaciente=[
+				"Codigo"=>$code,
+				"Nombres"=>$nombres,
+				"Apellidos"=>$apellidos,
+				"Email"=>$correo,
+				"Cedula"=>$cedula,
+				"Telefono"=>$telefono,
+				"Fecha_nacimiento"=>$fecha_nacimiento,
+				"Genero"=>$genero,
+				"Direccion"=>$direccion,
+				"Estado_civil"=>$estado_civil,
+				"Tipo_sangre"=>$tipo_sangre,
+				"Alergias"=>$alergias,
+				"Enfermedades"=>$enfermedades,
+				"Id_suc"=>$id_suc,
+				"Actualizado_por"=>$actualizado_por
+				
+			];
 
-						$code=self::generate_code("EC",7,$correlative);
-						$password1=self::encryption($password1);
-
-						$dataAccount=[
-							"Privilegio"=>$tipousu,
-							"Usuario"=>$username,
-							"Clave"=>$password1,
-							"Tipo"=>$Tipou,
-							"Genero"=>$gender,
-							"Codigo"=>$code
-						];
-
-						$datauser=[
-							"Codigo"=>$code,
-							"Nombres"=>$name,
-							"Apellidos"=>$lastname,
-							"Email"=>$email,
-							"Cedula"=>$cedula,
-							"Telefono"=>$telefono,
-							"Tipousu"=>$tipousu,
-							"id_suc"=>$id_suc,
-							"Provincia"=>$provincia,
-							"Canton"=>$canton,
-							"Parroquia"=>$parroquia
-							
-						];
-
-						if(self::save_account($dataAccount) && self::add_user_model($datauser)){
-							$dataAlert=[
-								"title"=>"¡usuario registrado!",
-								"text"=>"El usuario se registró con éxito en el sistema",
-								"type"=>"success"
-							];
-							unset($_POST);
-							return self::sweet_alert_single($dataAlert);
-						}else{
-							$dataAlert=[
-								"title"=>"¡Ocurrió un error inesperado!",
-								"text"=>"No hemos podido registrar el usuario, por favor intente nuevamente",
-								"type"=>"error"
-							];
-							return self::sweet_alert_single($dataAlert);
-						}
-
-					}else{
-						$dataAlert=[
-							"title"=>"¡Ocurrió un error inesperado!",
-							"text"=>"El nombre de usuario que acaba de ingresar ya se encuentra registrado en el sistema, por favor elija otro",
-							"type"=>"error"
-						];
-						return self::sweet_alert_single($dataAlert);
-					}
-				}else{
-					$dataAlert=[
-						"title"=>"¡Ocurrió un error inesperado!",
-						"text"=>"Las contraseñas que acabas de ingresar no coinciden",
-						"type"=>"error"
-					];
-					return self::sweet_alert_single($dataAlert);
-				}
+			if(self::add_paciente_model($datapaciente)){
+				$dataAlert=[
+					"title"=>"Paciente Registrado!",
+					"text"=>"El paciente se registró con éxito en el sistema",
+					"type"=>"success"
+				];
+				unset($_POST);
+				return self::sweet_alert_single($dataAlert);
 			}else{
 				$dataAlert=[
 					"title"=>"¡Ocurrió un error inesperado!",
-					"text"=>"Debes de llenar los campos de las contraseñas para registrar el usuario",
+					"text"=>"No hemos podido registrar al paciente, por favor intente nuevamente",
 					"type"=>"error"
 				];
 				return self::sweet_alert_single($dataAlert);
 			}
 		}
-		/*----------  Add user Controller  ----------*/
-		public function add_acountuser_controller(){
+		/*----------  Add paciente Controller  ----------*/
+		public function add_acountpaciente_controller(){
 			$name=self::clean_string($_POST['name']);
 			$lastname=self::clean_string($_POST['lastname']);
 			$gender=self::clean_string($_POST['gender']);
@@ -120,7 +76,7 @@
 			$cedula=self::clean_string($_POST['cedula']);
 			$telefono=self::clean_string($_POST['telefono']);
 			$tipousu=self::clean_string($_POST['tipousu']);
-			$username=self::clean_string($_POST['username']);
+			$pacientename=self::clean_string($_POST['pacientename']);
 			$password1=self::clean_string($_POST['password1']);
 			$password2=self::clean_string($_POST['password2']);
 			$nivel=self::clean_string($_POST['nivel']);
@@ -141,7 +97,7 @@
 			}
 			if($password1!="" || $password2!=""){
 				if($password1==$password2){
-					$query1=self::execute_single_query("SELECT Usuario FROM cuenta WHERE Usuario='$username'");
+					$query1=self::execute_single_query("SELECT Usuario FROM cuenta WHERE Usuario='$pacientename'");
 					if($query1->rowCount()<=0){
 						$query2=self::execute_single_query("SELECT id FROM cuenta");
 						$correlative=($query2->rowCount())+1;
@@ -151,14 +107,14 @@
 
 						$dataAccount=[
 							"Privilegio"=>$tipousu,
-							"Usuario"=>$username,
+							"Usuario"=>$pacientename,
 							"Clave"=>$password1,
 							"Tipo"=>$Tipou,
 							"Genero"=>$gender,
 							"Codigo"=>$code
 						];
 
-						$datauser=[
+						$datapaciente=[
 							"Codigo"=>$code,
 							"Nombres"=>$name,
 							"Apellidos"=>$lastname,
@@ -175,7 +131,7 @@
 							
 						];
 
-						if(self::save_account($dataAccount) && self::add_user_model($datauser)){
+						if(self::save_account($dataAccount) && self::add_paciente_model($datapaciente)){
 							$dataAlert=[
 								"title"=>"¡usuario registrado!",
 								"text"=>"El usuario se registró con éxito en el sistema",
@@ -221,8 +177,8 @@
 
 
 
-		/*----------  Data user Controller  ----------*/
-		public function data_user_controller($Type,$Code){
+		/*----------  Data paciente Controller  ----------*/
+		public function data_paciente_controller($Type,$Code){
 			$Type=self::clean_string($Type);
 			$Code=self::clean_string($Code);
 
@@ -231,8 +187,8 @@
 				"Codigo"=>$Code
 			];
 
-			if($userdata=self::data_user_model($data)){
-				return $userdata;
+			if($pacientedata=self::data_paciente_model($data)){
+				return $pacientedata;
 			}else{
 				$dataAlert=[
 					"title"=>"¡Ocurrió un error inesperado!",
@@ -244,11 +200,11 @@
 
 		}
 
-		/*----------  Data user Controller  ----------*/
-		public function validarUsuario($user){
-			$user=self::clean_string($user);
+		/*----------  Data paciente Controller  ----------*/
+		public function validarUsuario($paciente){
+			$paciente=self::clean_string($paciente);
 		
-			$Total=self::execute_single_query("SELECT * FROM cuenta WHERE Usuario = '$user'");
+			$Total=self::execute_single_query("SELECT * FROM cuenta WHERE Usuario = '$paciente'");
 			$Total=$Total->rowCount();
 
 			return $Total > 0;
@@ -257,16 +213,11 @@
 
 
 
-		/*----------  Pagination user Controller  ----------*/
-		public function pagination_user_controller(){
+		/*----------  Pagination paciente Controller  ----------*/
+		public function pagination_paciente_controller(){
 	
 			$Datos=self::execute_single_query("
-				SELECT e.*,tu.tipo, p.id_provincia as cod_p, p.nombre as provincia, c.cod_canton as cod_c, c.nombre as canton, pa.cod_parroquia as cod_pa, pa.nombre as parroquia,s.nombre as suc ,s.id_suc  FROM usuarios e 
-				LEFT JOIN tipo_usuario tu on tu.id_tipo=e.Tipo 
-				LEFT JOIN provincias p on p.id_provincia=e.Provincia
-				LEFT JOIN cantones c on c.id_canton=e.Canton
-				LEFT JOIN parroquias pa on pa.id_parroquia=e.Parroquia  LEFT JOIN sucursales s on s.id_suc=e.Sucursal
-				ORDER BY Nombres ASC;
+				SELECT p.*,s.nombre as sucursal,u.Nombres as n,u.Apellidos as a FROM `pacientes` p LEFT JOIN sucursales s on s.id_suc=p.id_suc LEFT JOIN usuarios u on u.Codigo=p.actualizado_por ORDER BY p.fecha_registro ASC;
 			");
 			$Datos=$Datos->fetchAll();
 
@@ -275,22 +226,25 @@
 				<thead>
 					<tr>
 						<th class="text-center">#</th>
+						<th class="text-center" style="display:none;">id_paciente</th>
 						<th class="text-center">Cedula</th>
 						<th class="text-center">Nombres</th>
 						<th class="text-center">Apellidos</th>
-						<th class="text-center">Email</th>
-						<th class="text-center">Tipo</th>
+						<th class="text-center">Fecha de Nacimiento</th>
+						<th class="text-center" style="display:none;">Genero</th>
 						<!-- Columnas ocultas -->
 						<th style="display:none;">Teléfono</th>
+						<th style="display:none;">Correo</th>
+						<th style="display:none;"> Direccion</th>
+						<th style="display:none;">Estado Civil</th>
+						<th >Tipo de Sangre</th>
+						<th >Alergias</th>
+						<th >Enfermedades</th>
 						<th >Sucursal</th>
-						<th style="display:none;">Cod. Provincia</th>
-						<th style="display:none;">Provincia</th>
-						<th style="display:none;">Cod. Canton</th>
-						<th style="display:none;">Canton</th>
-						<th style="display:none;">Cod. Parroquia</th>
-						<th style="display:none;">Parroquia</th>
+						<th style="display:none;">Fecha de Registro</th>
+						<th style="display:none;">Actualizado por</th>
+						<th style="display:none;">Fecha de Actualizacion</th>
 						<th class="text-center">A. Datos</th>
-						<th class="text-center">A. Cuenta</th>
 						<th class="text-center">Eliminar</th>
 					</tr>
 				</thead>
@@ -303,37 +257,37 @@
 					$table.='
 					<tr>
 						<td>'.$cont.'</td>
-						<td>'.$rows['Cedula'].'</td>
-						<td>'.$rows['Nombres'].'</td>
-						<td>'.$rows['Apellidos'].'</td>
-						<td>'.$rows['Email'].'</td>
-						<td>'.$rows['tipo'].'</td>
+						<td style="display:none;">'.$rows['id_paciente'].'</td>
+						<td>'.$rows['cedula'].'</td>
+						<td>'.$rows['nombres'].'</td>
+						<td>'.$rows['apellidos'].'</td>
+						<td>'.date("d/m/Y", strtotime($rows['fecha_nacimiento'])).'</td>
+						<td style="display:none;">'.$rows['genero'].'</td>
+						<td style="display:none;">'.$rows['telefono'].'</td>
 						 <!-- Columnas ocultas -->
-						<td style="display:none;">' . $rows['Telefono'] . '</td>
-						<td>' . $rows['suc'] . '</td>
-						<td style="display:none;">' . $rows['cod_p'] . '</td>
-						<td style="display:none;">' . $rows['provincia'] . '</td>
-						<td style="display:none;">' . $rows['cod_c'] . '</td>
-						<td style="display:none;">' . $rows['canton'] . '</td>
-						<td style="display:none;">' . $rows['cod_pa'] . '</td>
-						<td style="display:none;">' . $rows['parroquia'] . '</td>
+						<td style="display:none;">' . $rows['correo'] . '</td>
+						<td style="display:none;">' . $rows['direccion'] . '</td>
+						<td style="display:none;">' . $rows['estado_civil'] . '</td>
+						<td >' . $rows['tipo_sangre'] . '</td>
+						<td >' . $rows['alergias'] . '</td>
+						<td >' . $rows['enfermedades'] . '</td>
+						<td >' . $rows['sucursal'] . '</td>
+						<td style="display:none;">' . $rows['fecha_registro'] . '</td>
+						<td style="display:none;">' . $rows['n'] .' ' . $rows['a'] . '</td>
+						<td style="display:none;">' . $rows['fecha_actualizacion'] . '</td>
 								
 						<td>
-							<a href="'.SERVERURL.'userinfo/'.$rows['Codigo'].'/" class="btn btn-success btn-raised btn-xs">
+							<a href="'.SERVERURL.'pacienteinfo/'.$rows['id_paciente'].'/" class="btn btn-success btn-raised btn-xs">
 								<i class="zmdi zmdi-refresh"></i>
 							</a>
 						</td>
+						
 						<td>
-							<a href="'.SERVERURL.'account/'.$rows['Codigo'].'/" class="btn btn-success btn-raised btn-xs">
-								<i class="zmdi zmdi-refresh"></i>
-							</a>
-						</td>
-						<td>
-							<a href="#!" class="btn btn-danger btn-raised btn-xs btnFormsAjax" data-action="delete" data-id="del-'.$rows['Codigo'].'">
+							<a href="#!" class="btn btn-danger btn-raised btn-xs btnFormsAjax" data-action="delete" data-id="del-'.$rows['id_paciente'].'">
 								<i class="zmdi zmdi-delete"></i>
 							</a>
-							<form action="" id="del-'.$rows['Codigo'].'" method="POST" enctype="multipart/form-data">
-								<input type="hidden" name="userCode" value="'.$rows['Codigo'].'">
+							<form action="" id="del-'.$rows['id_paciente'].'" method="POST" enctype="multipart/form-data">
+								<input type="hidden" name="pacienteCode" value="'.$rows['id_paciente'].'">
 							</form>
 						</td>
 					</tr>
@@ -352,11 +306,11 @@
 		}
 
 
-		/*----------  Delete user Controller  ----------*/
-		public function delete_user_controller($code){
+		/*----------  Delete paciente Controller  ----------*/
+		public function delete_paciente_controller($code){
 			$code=self::clean_string($code);
 
-			if(self::delete_account($code) && self::delete_user_model($code)){
+			if(self::delete_account($code) && self::delete_paciente_model($code)){
 				$dataAlert=[
 					"title"=>"¡usuario eliminado!",
 					"text"=>"El usuario ha sido eliminado del sistema satisfactoriamente",
@@ -374,8 +328,8 @@
 		}
 
 
-		/*----------  Update user Controller  ----------*/
-		public function update_user_controller(){
+		/*----------  Update paciente Controller  ----------*/
+		public function update_paciente_controller(){
 			$code=self::clean_string($_POST['code']);
 			$name=self::clean_string($_POST['name']);
 			$lastname=self::clean_string($_POST['lastname']);
@@ -383,7 +337,7 @@
 			$cedula=self::clean_string($_POST['cedula']);
 			$telefono=self::clean_string($_POST['telefono']);
 			$tipousu=self::clean_string($_POST['tipousu']);
-			$id_suc=self::clean_string($_POST['id_suc']);
+			$nivel=self::clean_string($_POST['nivel']);
 			$provincia=self::clean_string($_POST['provincia']);
 			$canton=self::clean_string($_POST['canton']);
 			$parroquia=self::clean_string($_POST['parroquia']);
@@ -397,14 +351,14 @@
 				"Cedula"=>$cedula,
 				"Telefono"=>$telefono,
 				"Tipousu"=>$tipousu,
-				"id_suc"=>$id_suc,
+				"Nivel"=>$nivel,
 				"Provincia"=>$provincia,
 				"Canton"=>$canton,
 				"Parroquia"=>$parroquia
 				
 			];
 
-			if(self::update_user_model($data)){
+			if(self::update_paciente_model($data)){
 				$dataAlert=[
 					"title"=>"¡usuario actualizado!",
 					"text"=>"Los datos del usuario fueron actualizados con éxito",

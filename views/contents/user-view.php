@@ -29,6 +29,8 @@
 	if(isset($_POST['name']) && isset($_POST['username'])){
 		echo $insuser->add_user_controller();
 	}
+	$query2=$insuser->execute_single_query("SELECT * FROM sucursales");
+
 ?>
 <div class="container-fluid">
 	<div class="row">
@@ -84,17 +86,20 @@
 				    				</div>
 
 									<div class="col-xs-12 col-sm-6">
-								    	<div class="form-group label-floating">
-										  	<label class="control-label">Nivel de Estudios *</label>
-											<select class="form-control" name="nivel" id="" >
-												<option value="Inicial">Educación Inicial</option>
-												<option value="Primaria">Educación General Básica (Primaria)</option>
-												<option value="Secundaria">Bachillerato General Unificado (Secundaria)</option>
-												<option value="TercerNivel">Educación Superior (Tercer Nivel)</option>
-												<option value="Postgrado">Postgrado</option>
+										<div class="form-group label-floating is-focused">
+											<label class="control-label">Sucursal *</label>
+											<select class="form-control" name="id_suc" required>
+												<option value="">Seleccione una sucursal</option>
+												<?php
+												// Ejemplo: loop para cargar sucursales desde la BD
+												while($row = $query2->fetch()){
+												  echo '<option value="'.$row['id_suc'].'">'.$row['nombre'].'</option>';
+												}
+
+												?>
 											</select>
 										</div>
-				    				</div>
+									</div>
 
 									<div class="col-xs-12 col-sm-6">
 										<div class="form-group label-floating">

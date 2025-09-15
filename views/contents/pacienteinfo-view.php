@@ -7,24 +7,24 @@
 	</p>
 </div>
 <?php 
-	require_once "./controllers/userController.php";
+	require_once "./controllers/pacienteController.php";
 
-	$userIns = new userController();
+	$pacienteIns = new pacienteController();
 
 	if(isset($_POST['code'])){
-		echo $userIns->update_user_controller();
+		echo $pacienteIns->update_paciente_controller();
 	}
 
 	$code=explode("/", $_GET['views']);
 
-	$data=$userIns->data_user_controller("Only",$code[1]);
+	$data=$pacienteIns->data_paciente_controller("Only",$code[1]);
 	if($data->rowCount()>0):
 		$rows=$data->fetch();
 ?>
-<?php if($_SESSION['userType']=="Administrador"): ?>
+<?php if($_SESSION['pacienteType']=="Administrador"): ?>
 
 <p class="text-center">
-	<a href="<?php echo SERVERURL; ?>userlist/" class="btn btn-info btn-raised btn-sm">
+	<a href="<?php echo SERVERURL; ?>pacientelist/" class="btn btn-info btn-raised btn-sm">
 		<i class="zmdi zmdi-long-arrow-return"></i> Volver
 	</a>
 </p>
@@ -78,19 +78,23 @@
 										  	<label class="control-label">Tipo de Usuario *</label>
 											  <select class="form-control" name="tipousu">
 												
-												<option value="1" <?php if($rows['Tipo'] == '3') echo 'selected'; ?>>Medico</option>
-												<option value="2" <?php if($rows['Tipo'] == '2') echo 'selected'; ?>>Secretaria</option>
+												<option value="1" <?php if($rows['Tipo'] == '1') echo 'selected'; ?>>Socio</option>
+												<option value="2" <?php if($rows['Tipo'] == '2') echo 'selected'; ?>>Representante</option>
+												<option value="3" <?php if($rows['Tipo'] == '3') echo 'selected'; ?>>Trabajador</option>
+												<option value="4" <?php if($rows['Tipo'] == '4') echo 'selected'; ?>>Directivo</option>
 											  </select>
 										</div>
 				    				</div>
-									
 									<div class="col-xs-12 col-sm-6">
-										<div class="form-group label-floating is-focused">
-											<label class="control-label">Sucursal *</label>
-											<input class="" type="hidden" name="id_suc" value="<?php echo $rows['id_suc']; ?>">
-										  	<input class="form-control" type="text" disabled value="<?php echo $rows['nombre']; ?>">
-
-											
+										<div class="form-group label-floating">
+											<label class="control-label">Nivel de Estudios *</label>
+											<select class="form-control" name="nivel" id="">
+												<option value="Inicial" <?php if($rows['Nivel'] == 'Inicial') echo 'selected'; ?>>Educación Inicial</option>
+												<option value="Primaria" <?php if($rows['Nivel'] == 'Primaria') echo 'selected'; ?>>Educación General Básica (Primaria)</option>
+												<option value="Secundaria" <?php if($rows['Nivel'] == 'Secundaria') echo 'selected'; ?>>Bachillerato General Unificado (Secundaria)</option>
+												<option value="TercerNivel" <?php if($rows['Nivel'] == 'TercerNivel') echo 'selected'; ?>>Educación Superior (Tercer Nivel)</option>
+												<option value="Postgrado" <?php if($rows['Nivel'] == 'Postgrado') echo 'selected'; ?>>Postgrado</option>
+											</select>
 										</div>
 									</div>
 
