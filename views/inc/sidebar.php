@@ -123,6 +123,30 @@ function isOpenSubMenu($pages, $currentPage) {
 				</ul>
 			</li>
 
+			<!-- Especialidades -->
+			<li class="<?php echo isActiveMenu(['especialidades','especialidadeslist','especialidadesMedico'], $currentPage); ?>">
+				<a href="#!" class="btn-sideBar-SubMenu">
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Especialidades <i class="zmdi zmdi-caret-down pull-right"></i>
+				</a>
+				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['especialidades','especialidadeslist','especialidadesMedico'], $currentPage); ?>">
+					<li>
+						<a href="<?php echo SERVERURL; ?>especialidades/" class="<?php echo ($currentPage=='especialidades')?'active':''; ?>">
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Nuevo
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>especialidadeslist/" class="<?php echo ($currentPage=='especialidadeslist')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Listado
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo SERVERURL; ?>especialidadesMedico/" class="<?php echo ($currentPage=='especialidadesMedico')?'active':''; ?>">
+							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Medicos
+						</a>
+					</li>
+				</ul>
+			</li>
+
 			<li>
 				<a href="<?php echo SERVERURL; ?>backup/" class="<?php echo ($currentPage=='backup')?'active':''; ?>">
 					<i class="zmdi zmdi-tv-alt-play zmdi-hc-fw"></i> Backup
@@ -165,7 +189,7 @@ function isOpenSubMenu($pages, $currentPage) {
 				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['agenda','agendalist','agendaderivaciones','lista_espera','notificaciones'], $currentPage); ?>">
 					<li>
 						<a href="<?php echo SERVERURL; ?>agenda/" class="<?php echo ($currentPage=='agenda')?'active':''; ?>">
-							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Citas / Agenda
+							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Agendar Citas
 						</a>
 					</li>
 					<li>

@@ -12,6 +12,25 @@
 <script src="<?php echo SERVERURL; ?>views/js/sweetalert2.min.js"></script>
 <script src="<?php echo SERVERURL; ?>views/js/chart.js"></script>
 <script src="<?php echo SERVERURL; ?>views/js/exceljs.min.js"></script>
+
+
+
+
+<!-- Select2 (CORRECTO) -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- FullCalendar (CSS CORRECTO) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css">
+<!-- JS ya está bien -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
 <div id="global-loader">
   <div class="loader"></div>
 </div>
+
+<script>
+  console.log('jQuery?', !!window.jQuery);
+  console.log('Select2?', typeof $.fn.select2);
+  console.log('FullCalendar?', !!window.FullCalendar);
+</script>

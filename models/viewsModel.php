@@ -18,6 +18,10 @@
 				$views=="paciente" ||
 				$views=="pacientelist" ||
 				$views=="pacienteinfo" ||	
+				$views=="agenda" ||	
+				$views=="especialidades" ||	
+				$views=="especialidadeslist" ||	
+				$views=="especialidadesinfo" ||	
 				
 			
 				$views=="backup" ||	
