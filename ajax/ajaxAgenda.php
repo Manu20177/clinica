@@ -74,11 +74,12 @@ try {
       break;
 
     case 'load_medicos':
-      header('Content-Type: text/html; charset=utf-8');
-      $especialidad_id = isset($_POST['especialidad_id']) ? intval($_POST['especialidad_id']) : 0;
-      $sucursal_id     = isset($_POST['sucursal_id']) ? trim($_POST['sucursal_id']) : null;
-      echo $agendaCtrl->load_medicos_controller($especialidad_id, $sucursal_id);
-      break;
+        header('Content-Type: text/html; charset=utf-8');
+        $especialidad_id = isset($_POST['especialidad_id']) ? intval($_POST['especialidad_id']) : 0;
+        $sucursal_id     = isset($_POST['sucursal_id']) ? trim($_POST['sucursal_id']) : null;
+        echo $agendaCtrl->load_medicos_controller($especialidad_id, $sucursal_id);
+        break;
+
 
     case 'check_disponibilidad':
       header('Content-Type: application/json; charset=utf-8');

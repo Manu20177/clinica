@@ -71,13 +71,13 @@ class agendaModel extends mainModel {
         $pdo = self::connect();
 
         $base = "SELECT u.Codigo AS medico_codigo,
-                        COALESCE(u.nombre_completo, CONCAT(u.apellidos,' ',u.nombres)) AS nombre_completo
+                        COALESCE(CONCAT(u.apellidos,' ',u.nombres)) AS nombre_completo
                    FROM medico_especialidad me
                    INNER JOIN usuarios u ON u.Codigo = me.medico_codigo
+                   INNER JOIN cuenta c on c.Codigo=u.Codigo
                   WHERE me.especialidad_id = :esp
-                    AND me.estado = 'Activa'
-                    AND u.activo = 1
-                    AND u.privilegio = 3";
+                    AND u.Estado = 'Activo'
+                    AND c.Privilegio = 3;";
 
         // Si quieres además reforzar por rol, descomenta la línea:
         // $base .= " AND u.rol = 'MEDICO' ";

@@ -5,6 +5,8 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
   require_once "./controllers/pacienteController.php";
   $agendaCtrl = new agendaController();
   $pc        = new pacienteController();
+  $id_sucursal=$_SESSION['userIdSuc'];
+
 
   // Guardar cita (POST directo)
   if(
@@ -78,7 +80,7 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       <div class="col-xs-12 col-sm-4">
         <div class="form-group label-floating is-focused">
           <label class="control-label">Especialidad *</label>
-          <select class="form-control" name="especialidad_id" id="especialidad_id" required>
+        <select class="form-control js-especialidad-select" id="especialidad_id" name="especialidad_id" required style="width:100%">
             <option value="">SELECCIONE</option>
             <?php if($espStmt && $espStmt->rowCount()>0): while($e=$espStmt->fetch(PDO::FETCH_ASSOC)){ ?>
               <option value="<?php echo (int)$e['id']; ?>">
@@ -88,6 +90,8 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
           </select>
         </div>
       </div>
+
+
 
       <div class="col-xs-12 col-sm-4">
         <div class="form-group label-floating is-focused">
@@ -143,6 +147,13 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
   function toDateStr(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
   function toTimeStr(d){ return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
 
+  $('.js-especialidad-select').select2({
+          placeholder: "Seleccione una especialidad",
+          allowClear: true,
+          minimumResultsForSearch: 0,
+          width: '100%'
+        });
+
   // ---------- Select2 Paciente ----------
   const $pac = $('#paciente_id');
   $pac.select2({
@@ -186,10 +197,22 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       if(calendar) calendar.refetchEvents();
       return;
     }
-    $.post(SERVER+'ajax/ajaxAgenda.php', { action:'load_medicos', especialidad_id: espId }, function(html){
-      $med.html(html).prop('disabled', false);
-      if(calendar) calendar.refetchEvents();
+    $.post(
+      SERVER+'ajax/ajaxAgenda.php',
+      {
+        action:'load_medicos',
+        especialidad_id: espId,
+        sucursal_id: $('#sucursal_id').val() // ← enviar sucursal
+      },
+      function(html){
+        $med.html(html).prop('disabled', false);
+        if(calendar) calendar.refetchEvents();
+      }
+    ).fail(function(xhr){
+      console.error('load_medicos FAIL', xhr.status, xhr.responseText);
+      $med.html('<option value="">Error cargando médicos</option>').prop('disabled', true);
     });
+
   });
 
   $med.on('change', function(){
