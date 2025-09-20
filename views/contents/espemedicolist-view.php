@@ -35,7 +35,7 @@
 
   // Eliminar especialidad (desde botón/badge de la tabla)
   if(isset($_POST['especialidadId'])){
-    echo $espCtrl->delete_especialidad_controller($_POST['especialidadId']);
+    echo $espCtrl->delete_medico_especialidad_controller($_POST['especialidadId']);
   }
 ?>
 
@@ -52,7 +52,7 @@
               // Renderizado con paginación y búsqueda si tu controller lo soporta
               // Asegúrate de tener este método en el controller:
               //   public function pagination_especialidades_controller() { ... }
-              echo $espCtrl->pagination_especialidades_controller();
+              echo $espCtrl->listado_medico_especialidad_controller();
             ?>
           </div>
         </div>

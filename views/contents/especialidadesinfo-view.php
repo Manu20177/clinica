@@ -26,14 +26,25 @@
     $row = $data->fetch();
 ?>
 
-<p class="text-center">
-  <a href="<?php echo SERVERURL; ?>especialidadeslist/" class="btn btn-info btn-raised btn-sm">
-    <i class="zmdi zmdi-long-arrow-return"></i> Volver
-  </a>
-  <a href="<?php echo SERVERURL; ?>especialidades/" class="btn btn-primary btn-raised btn-sm">
-    <i class="zmdi zmdi-plus"></i> Nueva
-  </a>
-</p>
+<div class="container-fluid">
+  <ul class="breadcrumb breadcrumb-tabs">
+    <li class="active">
+      <a href="<?php echo SERVERURL; ?>especialidades/" class="btn btn-info">
+        <i class="zmdi zmdi-plus"></i> Nuevo
+      </a>
+    </li>
+    <li>
+      <a href="<?php echo SERVERURL; ?>especialidadeslist/" class="btn btn-success">
+        <i class="zmdi zmdi-format-list-bulleted"></i> Lista
+      </a>
+    </li>
+    <li>
+      <a href="<?php echo SERVERURL; ?>espemedicolist/" class="btn btn-success">
+        <i class="zmdi zmdi-format-list-bulleted"></i> Médico - Especialidad
+      </a>
+    </li>
+  </ul>
+</div>
 
 <div class="container-fluid">
   <div class="row">

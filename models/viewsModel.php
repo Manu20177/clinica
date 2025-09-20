@@ -22,6 +22,7 @@
 				$views=="especialidades" ||	
 				$views=="especialidadeslist" ||	
 				$views=="especialidadesinfo" ||	
+				$views=="espemedicolist" ||	
 				
 			
 				$views=="backup" ||	

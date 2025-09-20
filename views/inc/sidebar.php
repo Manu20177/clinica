@@ -140,7 +140,7 @@ function isOpenSubMenu($pages, $currentPage) {
 						</a>
 					</li>
 					<li>
-						<a href="<?php echo SERVERURL; ?>especialidadesMedico/" class="<?php echo ($currentPage=='especialidadesMedico')?'active':''; ?>">
+						<a href="<?php echo SERVERURL; ?>espemedicolist/" class="<?php echo ($currentPage=='especialidadesMedico')?'active':''; ?>">
 							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Medicos
 						</a>
 					</li>
