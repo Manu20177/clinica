@@ -45,75 +45,74 @@ class agendaController extends agendaModel {
     }
 
     /* Crear cita desde el formulario */
+      /* Guardar cita (ajustado a tu tabla) */
     public function add_cita_controller(){
-        // Limpiar variables
-        $paciente_id     = self::clean_string($_POST['paciente_id'] ?? '');
-        $sucursal_id     = self::clean_string($_POST['sucursal_id'] ?? '');
-        $especialidad_id = intval($_POST['especialidad_id'] ?? 0);
-        $medico_codigo   = self::clean_string($_POST['medico_codigo'] ?? '');
-        $fecha           = self::clean_string($_POST['fecha'] ?? '');
-        $hora_inicio     = self::clean_string($_POST['hora_inicio'] ?? '');
-        $hora_fin        = self::clean_string($_POST['hora_fin'] ?? '');
-        $duracion_min    = intval($_POST['duracion_min'] ?? 30);
-        $notas           = self::clean_string($_POST['notas'] ?? '');
-        $origen          = self::clean_string($_POST['origen'] ?? 'DIRECTA');
-        $creada_por      = $_SESSION['userKey'] ?? 'SYSTEM';
+        $paciente_id         = self::clean_string($_POST['paciente_id'] ?? '');
+        $sucursal_id         = self::clean_string($_POST['sucursal_id'] ?? '');
+        $id_especialidad_med = intval($_POST['id_especialidad_med'] ?? 0);
+        $fecha               = self::clean_string($_POST['fecha'] ?? '');
+        $hora_inicio         = self::clean_string($_POST['hora_inicio'] ?? '');
+        $hora_fin            = self::clean_string($_POST['hora_fin'] ?? '');
+        $creada_por          = $_SESSION['userKey'] ?? 'SYSTEM';
 
-        // Validar mínimos
-        if($paciente_id==='' || $sucursal_id==='' || $especialidad_id<=0 ||
-           $medico_codigo==='' || $fecha==='' || $hora_inicio==='' || $hora_fin===''){
-            $dataAlert = [
-                "title"=>"Datos incompletos",
-                "text"=>"Debe completar todos los campos obligatorios",
-                "type"=>"error"
-            ];
-            return self::sweet_alert_single($dataAlert);
+        if($paciente_id==='' || $sucursal_id==='' || $id_especialidad_med<=0 ||
+        $fecha==='' || $hora_inicio==='' || $hora_fin===''){
+        $dataAlert = [
+            "title"=>"Datos incompletos",
+            "text"=>"Complete paciente, sucursal, médico y horario",
+            "type"=>"error"
+        ];
+        return self::sweet_alert_single($dataAlert);
         }
 
-        // Armar timestamps
+        // Timestamps
         $fecha_inicio = $fecha." ".$hora_inicio.":00";
         $fecha_fin    = $fecha." ".$hora_fin.":00";
 
-        // Revisar solape
-        if(self::hay_solape_model($medico_codigo, $fecha_inicio, $fecha_fin)){
-            $dataAlert = [
-                "title"=>"Conflicto de horario",
-                "text"=>"El médico ya tiene una cita en ese rango",
-                "type"=>"error"
-            ];
-            return self::sweet_alert_single($dataAlert);
+        // No permitir fin <= inicio
+        if(strtotime($fecha_fin) <= strtotime($fecha_inicio)){
+        $dataAlert = [
+            "title"=>"Rango inválido",
+            "text"=>"La hora fin debe ser mayor a la hora inicio",
+            "type"=>"error"
+        ];
+        return self::sweet_alert_single($dataAlert);
         }
 
-        // Datos a guardar
+        // Solape por id_especialidad_med
+        if(self::hay_solape_model($id_especialidad_med, $fecha_inicio, $fecha_fin)){
+        $dataAlert = [
+            "title"=>"Conflicto de horario",
+            "text"=>"Ya existe una cita en ese rango",
+            "type"=>"error"
+        ];
+        return self::sweet_alert_single($dataAlert);
+        }
+
         $data = [
-            "paciente_id"     => $paciente_id,
-            "sucursal_id"     => $sucursal_id,
-            "especialidad_id" => $especialidad_id,
-            "medico_codigo"   => $medico_codigo,
-            "fecha_inicio"    => $fecha_inicio,
-            "fecha_fin"       => $fecha_fin,
-            "estado"          => "PENDIENTE",
-            "origen"          => $origen,
-            "derivacion_id"   => null,
-            "notas"           => $notas,
-            "creada_por"      => $creada_por
+        "paciente_id"         => $paciente_id,
+        "sucursal_id"         => $sucursal_id,
+        "id_especialidad_med" => $id_especialidad_med,
+        "fecha_inicio"        => $fecha_inicio,
+        "fecha_fin"           => $fecha_fin,
+        "estado"              => "PENDIENTE",
+        "creada_por"          => $creada_por
         ];
 
-        // Guardar cita
         if(self::crear_cita_model($data)){
-            $dataAlert = [
-                "title"=>"Cita registrada",
-                "text"=>"La cita se registró con éxito",
-                "type"=>"success"
-            ];
-            return self::sweet_alert_single($dataAlert);
+        $dataAlert = [
+            "title"=>"Cita registrada",
+            "text"=>"La cita se registró con éxito",
+            "type"=>"success"
+        ];
+        return self::sweet_alert_single($dataAlert);
         }else{
-            $dataAlert = [
-                "title"=>"Error inesperado",
-                "text"=>"No se pudo registrar la cita, inténtelo nuevamente",
-                "type"=>"error"
-            ];
-            return self::sweet_alert_single($dataAlert);
+        $dataAlert = [
+            "title"=>"Error inesperado",
+            "text"=>"No se pudo registrar la cita",
+            "type"=>"error"
+        ];
+        return self::sweet_alert_single($dataAlert);
         }
     }
 
@@ -138,7 +137,7 @@ class agendaController extends agendaModel {
 
         $out = '<option value="">Seleccione</option>';
         foreach($rows as $r){
-            $out .= '<option value="'.$r['medico_codigo'].'">'.
+            $out .= '<option value="'.$r['cod_esp_med'].'">'.
                         htmlspecialchars($r['nombre_completo'], ENT_QUOTES, 'UTF-8').
                     '</option>';
         }
@@ -164,6 +163,7 @@ class agendaController extends agendaModel {
     }
 
     /* Listar citas del médico en rango (JSON FullCalendar) */
+   /* Listar citas del médico en rango (JSON FullCalendar) */
     public function listar_citas_controller($medico_codigo, $startISO, $endISO){
         if($medico_codigo==='' || $startISO==='' || $endISO===''){
             return json_encode([]);
@@ -178,13 +178,62 @@ class agendaController extends agendaModel {
         $events = [];
         foreach($rows as $r){
             $events[] = [
-                "id"        => (string)$r['id'],
-                "title"     => "Reservado",
-                "start"     => $r['fecha_inicio'],
-                "end"       => $r['fecha_fin'],
-                "className" => "reservado"
+                "id"         => (int)$r['id'],
+                "title"      => "Reservado",
+                // ← fechas en ISO 8601 (con “T”)
+                "start"      => date('c', strtotime($r['fecha_inicio'])),
+                "end"        => date('c', strtotime($r['fecha_fin'])),
+                // ← v6 usa classNames (array)
+                "classNames" => ["reservado"],
+                // por si ayuda al render
+                "display"    => "block"
             ];
         }
         return json_encode($events, JSON_UNESCAPED_UNICODE);
     }
+
+    public function listar_citas_todas_controller($startISO, $endISO, $sucursal_id = null){
+        if($startISO==='' || $endISO===''){ return json_encode([]); }
+
+        $start = date('Y-m-d H:i:s', strtotime($startISO));
+        $end   = date('Y-m-d H:i:s', strtotime($endISO));
+
+        $rows = self::listar_citas_todas_model($start, $end, $sucursal_id);
+        if(!$rows){ return json_encode([]); }
+
+        $events = [];
+        foreach($rows as $r){
+            // título opcional más descriptivo
+            $doc = trim(($r['apellidos'] ?? '').' '.($r['nombres'] ?? ''));
+            $esp = $r['especialidad'] ?? '';
+            $pac = $r['paciente_id'] ?? '';
+            $title = $esp ? "Reservado · $esp" : "Reservado";
+            if($doc !== '') $title .= " · Dr(a). $doc";
+            if($pac !== '') $title .= " · Pac: $pac";
+
+            // colorear según estado (opcional)
+            $cls = ['reservado'];
+            $estado = strtoupper($r['estado'] ?? '');
+            if($estado === 'CONFIRMADA') $cls[] = 'estado-confirmada';
+            elseif($estado === 'CANCELADA') $cls[] = 'estado-cancelada';
+            else $cls[] = 'estado-pendiente'; // PENDIENTE u otros
+
+            $events[] = [
+                "id"         => (int)$r['id'],
+                "title"      => $title,
+                "start"      => date('c', strtotime($r['fecha_inicio'])),
+                "end"        => date('c', strtotime($r['fecha_fin'])),
+                "classNames" => $cls,
+                "extendedProps" => [
+                    "estado" => $r['estado'],
+                    "id_especialidad_med" => (int)$r['id_especialidad_med']
+                ]
+            ];
+        }
+        return json_encode($events, JSON_UNESCAPED_UNICODE);
+    }
+
+
+
+
 }

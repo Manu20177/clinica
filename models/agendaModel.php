@@ -70,20 +70,20 @@ class agendaModel extends mainModel {
     protected function load_medicos_model($especialidad_id, $sucursal_id=null){
         $pdo = self::connect();
 
-        $base = "SELECT u.Codigo AS medico_codigo,
+        $base = "SELECT me.id_especialidad as cod_esp_med,u.Codigo AS medico_codigo,
                         COALESCE(CONCAT(u.apellidos,' ',u.nombres)) AS nombre_completo
                    FROM medico_especialidad me
                    INNER JOIN usuarios u ON u.Codigo = me.medico_codigo
                    INNER JOIN cuenta c on c.Codigo=u.Codigo
                   WHERE me.especialidad_id = :esp
                     AND u.Estado = 'Activo'
-                    AND c.Privilegio = 3;";
+                    AND c.Privilegio = 3";
 
         // Si quieres además reforzar por rol, descomenta la línea:
         // $base .= " AND u.rol = 'MEDICO' ";
 
         if ($sucursal_id !== null && $sucursal_id !== '') {
-            $base .= " AND me.sucursal_id = :suc";
+            $base .= " AND u.Sucursal = :suc";
         }
 
         $base .= " ORDER BY nombre_completo ASC";
@@ -104,12 +104,9 @@ class agendaModel extends mainModel {
        Estados bloqueantes: PENDIENTE, CONFIRMADA (tal como usas hoy). */
     protected function hay_solape_model($medico_codigo, $start, $end){
         $pdo = self::connect();
-        $sql = "SELECT id
-                  FROM citas
-                 WHERE medico_codigo = :medico
-                   AND estado IN ('PENDIENTE','CONFIRMADA')
-                   AND NOT (fecha_fin <= :start OR fecha_inicio >= :end)
-                 LIMIT 1";
+        $sql = "SELECT id FROM citas c WHERE c.id_especialidad_med = :medico AND estado IN ('PENDIENTE','CONFIRMADA') AND NOT (fecha_fin <= :end OR fecha_inicio >= :start) LIMIT 1
+                 
+                 ";
         $st = $pdo->prepare($sql);
         $st->bindValue(':medico', $medico_codigo, PDO::PARAM_STR);
         $st->bindValue(':start',  $start, PDO::PARAM_STR);
@@ -125,11 +122,11 @@ class agendaModel extends mainModel {
        Mismos estados bloqueantes. */
     protected function listar_citas_model($medico_codigo, $start, $end){
         $pdo = self::connect();
-        $sql = "SELECT id, fecha_inicio, fecha_fin
-                  FROM citas
-                 WHERE medico_codigo = :medico
+        $sql = "SELECT id, fecha_inicio, fecha_fin FROM
+                  citas c 
+                  WHERE c.id_especialidad_med = :medico
                    AND estado IN ('PENDIENTE','CONFIRMADA')
-                   AND NOT (fecha_fin <= :start OR fecha_inicio >= :end)
+                   AND NOT (fecha_fin <= :end OR fecha_inicio >= :start)
                  ORDER BY fecha_inicio ASC";
         $st = $pdo->prepare($sql);
         $st->bindValue(':medico', $medico_codigo, PDO::PARAM_STR);
@@ -139,38 +136,55 @@ class agendaModel extends mainModel {
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    protected function listar_citas_todas_model($start, $end, $sucursal_id = null){
+        $pdo = self::connect();
+        $sql = "SELECT c.id, c.fecha_inicio, c.fecha_fin, c.estado, 
+                    c.id_especialidad_med, c.paciente_id, c.sucursal_id,
+                    me.medico_codigo,
+                    u.nombres, u.apellidos,
+                    e.nombre AS especialidad
+                FROM citas c
+            LEFT JOIN medico_especialidad me ON me.id_especialidad = c.id_especialidad_med
+            LEFT JOIN usuarios u            ON u.Codigo = me.medico_codigo
+            LEFT JOIN especialidades e      ON e.id = me.especialidad_id
+                WHERE :start < c.fecha_fin
+                AND :end   > c.fecha_inicio".
+            ($sucursal_id ? " AND c.sucursal_id = :suc" : "")."
+            ORDER BY c.fecha_inicio ASC";
+
+        $st = $pdo->prepare($sql);
+        $st->bindValue(':start', $start, PDO::PARAM_STR);
+        $st->bindValue(':end',   $end,   PDO::PARAM_STR);
+        if($sucursal_id){
+            $st->bindValue(':suc', $sucursal_id, PDO::PARAM_STR);
+        }
+        $st->execute();
+        return $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     /* ===========================
        CREACIÓN DE CITA
        =========================== */
+    /* Crear cita (exacto a tu tabla) */
     protected function crear_cita_model($data){
         $pdo = self::connect();
         $sql = "INSERT INTO citas
-                (paciente_id, sucursal_id, especialidad_id, medico_codigo,
-                 fecha_inicio, fecha_fin, estado, origen, derivacion_id,
-                 notas, creada_por, creado_en)
+                (paciente_id, sucursal_id, id_especialidad_med,
+                fecha_inicio, fecha_fin, estado, creada_por, creado_en)
                 VALUES
-                (:paciente_id, :sucursal_id, :especialidad_id, :medico_codigo,
-                 :fecha_inicio, :fecha_fin, :estado, :origen, :derivacion_id,
-                 :notas, :creada_por, NOW())";
+                (:paciente_id, :sucursal_id, :id_especialidad_med,
+                :fecha_inicio, :fecha_fin, :estado, :creada_por, NOW())";
         $st = $pdo->prepare($sql);
-        $st->bindValue(':paciente_id',     $data['paciente_id'],     PDO::PARAM_STR);
-        $st->bindValue(':sucursal_id',     $data['sucursal_id'],     PDO::PARAM_STR);
-        $st->bindValue(':especialidad_id', $data['especialidad_id'], PDO::PARAM_INT);
-        $st->bindValue(':medico_codigo',   $data['medico_codigo'],   PDO::PARAM_STR);
-        $st->bindValue(':fecha_inicio',    $data['fecha_inicio'],    PDO::PARAM_STR);
-        $st->bindValue(':fecha_fin',       $data['fecha_fin'],       PDO::PARAM_STR);
-        $st->bindValue(':estado',          $data['estado'],          PDO::PARAM_STR);
-        $st->bindValue(':origen',          $data['origen'],          PDO::PARAM_STR);
-        if($data['derivacion_id']===null){
-            $st->bindValue(':derivacion_id', null, PDO::PARAM_NULL);
-        }else{
-            $st->bindValue(':derivacion_id', $data['derivacion_id'], PDO::PARAM_INT);
-        }
-        $st->bindValue(':notas',           $data['notas'],           PDO::PARAM_STR);
-        $st->bindValue(':creada_por',      $data['creada_por'],      PDO::PARAM_STR);
+        $st->bindValue(':paciente_id',         $data['paciente_id'],         PDO::PARAM_STR);
+        $st->bindValue(':sucursal_id',         $data['sucursal_id'],         PDO::PARAM_STR);
+        $st->bindValue(':id_especialidad_med', $data['id_especialidad_med'], PDO::PARAM_INT);
+        $st->bindValue(':fecha_inicio',        $data['fecha_inicio'],        PDO::PARAM_STR);
+        $st->bindValue(':fecha_fin',           $data['fecha_fin'],           PDO::PARAM_STR);
+        $st->bindValue(':estado',              $data['estado'],              PDO::PARAM_STR);
+        $st->bindValue(':creada_por',          $data['creada_por'],          PDO::PARAM_STR);
         return $st->execute();
     }
-
     /* ===========================
        DERIVACIONES
        =========================== */

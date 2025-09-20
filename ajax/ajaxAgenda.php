@@ -83,7 +83,7 @@ try {
 
     case 'check_disponibilidad':
       header('Content-Type: application/json; charset=utf-8');
-      $medico = isset($_POST['medico_codigo']) ? trim($_POST['medico_codigo']) : '';
+      $medico = isset($_POST['id_especialidad_med']) ? trim($_POST['id_especialidad_med']) : '';
       $fecha  = isset($_POST['fecha']) ? trim($_POST['fecha']) : '';
       $hi     = isset($_POST['hora_inicio']) ? trim($_POST['hora_inicio']) : '';
       $hf     = isset($_POST['hora_fin']) ? trim($_POST['hora_fin']) : '';
@@ -92,11 +92,20 @@ try {
 
     case 'listar_citas':
       header('Content-Type: application/json; charset=utf-8');
-      $medico = isset($_POST['medico_codigo']) ? trim($_POST['medico_codigo']) : '';
+      $medico = isset($_POST['id_especialidad_med']) ? trim($_POST['id_especialidad_med']) : '';
       $start  = isset($_POST['start']) ? trim($_POST['start']) : '';
       $end    = isset($_POST['end']) ? trim($_POST['end']) : '';
       echo $agendaCtrl->listar_citas_controller($medico, $start, $end);
       break;
+
+    case 'listar_citas_todas':
+        header('Content-Type: application/json; charset=utf-8');
+        $start = isset($_POST['start']) ? trim($_POST['start']) : '';
+        $end   = isset($_POST['end'])   ? trim($_POST['end'])   : '';
+        $suc   = isset($_POST['sucursal_id']) ? trim($_POST['sucursal_id']) : null;
+        echo $agendaCtrl->listar_citas_todas_controller($start, $end, $suc);
+        break;
+
 
     default:
       http_response_code(400);

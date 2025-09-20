@@ -7,18 +7,17 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
   $pc        = new pacienteController();
   $id_sucursal=$_SESSION['userIdSuc'];
 
-
-  // Guardar cita (POST directo)
+  // Guardar cita (POST directo)  // <-- usa id_especialidad_med
   if(
-    isset($_POST['paciente_id'], $_POST['sucursal_id'], $_POST['especialidad_id'],
-          $_POST['medico_codigo'], $_POST['fecha'], $_POST['hora_inicio'], $_POST['hora_fin'])
+    isset($_POST['paciente_id'], $_POST['sucursal_id'], $_POST['id_especialidad_med'],
+          $_POST['fecha'], $_POST['hora_inicio'], $_POST['hora_fin'])
   ){
       echo $agendaCtrl->add_cita_controller();
   }
 
   // Sucursal desde sesión (preseleccionada y bloqueada)
-  $sucId = (int)($_SESSION['userIdSuc'] ?? 0);
-  $sucStmt = $pc->execute_single_query("SELECT id_suc, nombre FROM sucursales WHERE id_suc={$sucId} LIMIT 1");
+  $sucId = $_SESSION['userIdSuc'];
+  $sucStmt = $pc->execute_single_query("SELECT id_suc, nombre FROM sucursales WHERE id_suc='$sucId' LIMIT 1");
   $sucursalActual = $sucStmt && $sucStmt->rowCount()>0 ? $sucStmt->fetch(PDO::FETCH_ASSOC) : null;
 
   // Especialidades
@@ -31,7 +30,9 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
 .legend .dot { width:14px; height:14px; display:inline-block; border-radius:3px; margin-right:6px; }
 .dot-now { background:#5bc0de; }
 .dot-reserved { background:#d9534f; }
-.fc-event.reservado { background:#d9534f !important; border-color:#d9534f !important; color:#fff; }
+.fc-event.reservado { background:#d9534f!important; border-color:#d9534f!important; color:#fff; }
+.fc-timegrid-event.reservado .fc-event-main,
+.fc-timegrid-event.reservado { background:#d9534f!important; border-color:#d9534f!important; color:#fff; }
 .fc-now-indicator-line { border-top: 2px solid #5bc0de; }
 .select2-container--default .select2-selection--single { height: 38px; }
 .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px; }
@@ -80,7 +81,7 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       <div class="col-xs-12 col-sm-4">
         <div class="form-group label-floating is-focused">
           <label class="control-label">Especialidad *</label>
-        <select class="form-control js-especialidad-select" id="especialidad_id" name="especialidad_id" required style="width:100%">
+          <select class="form-control js-especialidad-select" id="especialidad_id" name="especialidad_id" required style="width:100%">
             <option value="">SELECCIONE</option>
             <?php if($espStmt && $espStmt->rowCount()>0): while($e=$espStmt->fetch(PDO::FETCH_ASSOC)){ ?>
               <option value="<?php echo (int)$e['id']; ?>">
@@ -91,17 +92,20 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
         </div>
       </div>
 
-
-
       <div class="col-xs-12 col-sm-4">
         <div class="form-group label-floating is-focused">
           <label class="control-label">Médico *</label>
-          <select class="form-control" name="medico_codigo" id="medico_codigo" required disabled>
+          <!-- Este select envía id_especialidad_med -->
+          <select class="form-control" name="id_especialidad_med" id="id_especialidad_med" required disabled>
             <option value="">SELECCIONE</option>
           </select>
         </div>
       </div>
     </div>
+
+    <small class="text-muted">
+      1) Seleccione especialidad y médico. 2) Luego haga clic en un bloque de 30 minutos dentro del horario (09:00–17:00).
+    </small>
 
     <!-- Calendario -->
     <div class="row">
@@ -130,31 +134,46 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
 </div>
 
 <script>
+  // —— URL ABSOLUTA del AJAX —— (evita errores de ruta)
+ 
+
 (function(){
+   const AJAX = '<?= rtrim(SERVERURL, "/"); ?>/ajax/ajaxAgenda.php';
+  console.log('[AJAX URL]', AJAX);
+
+  // Desactiva cache y loguea cualquier error global
+  $.ajaxSetup({
+    cache: false,
+    error: function(xhr, status, err){
+      console.error('[AJAX ERROR]', status, err, xhr.status, xhr.responseText);
+    }
+  });
+
+  // —— PING DE DIAGNÓSTICO (debe salir SIEMPRE en Network) ——
+  $.post(AJAX, { action:'diagnose' })
+    .done(function(res){
+      console.log('[diagnose OK]', res);
+    })
+    .fail(function(xhr){
+      console.error('[diagnose FAIL]', xhr.status, xhr.responseText);
+      alert('No se pudo conectar con ajaxAgenda.php ('+xhr.status+'). Revisa consola/Network.');
+    });
   const SERVER = '<?php echo SERVERURL; ?>';
   const $btn   = $('#btnGuardar');
   const $esp   = $('#especialidad_id');
-  const $med   = $('#medico_codigo');
+  const $med   = $('#id_especialidad_med');
 
   const $fecha = $('#fecha');
   const $hi    = $('#hora_inicio');
   const $hf    = $('#hora_fin');
 
   let pacienteOk=false, medicoOk=false, slotOk=false;
-
   function toggleGuardar(){ $btn.prop('disabled', !(pacienteOk && medicoOk && slotOk)); }
-  const pad2 = n => (n<10?('0'+n):(''+n));
-  function toDateStr(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
-  function toTimeStr(d){ return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
 
-  $('.js-especialidad-select').select2({
-          placeholder: "Seleccione una especialidad",
-          allowClear: true,
-          minimumResultsForSearch: 0,
-          width: '100%'
-        });
+  // Select2 especialidad (solo estilo)
+  $('.js-especialidad-select').select2({ placeholder:"Seleccione una especialidad", allowClear:true, width:'100%' });
 
-  // ---------- Select2 Paciente ----------
+  // Paciente (Select2)
   const $pac = $('#paciente_id');
   $pac.select2({
     placeholder: 'Escriba cédula o nombre...',
@@ -167,15 +186,7 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       cache: false,
       data: params => ({ action: 'buscar_pacientes_json', q: params.term }),
       beforeSend: xhr => xhr.setRequestHeader('Cache-Control','no-store'),
-      processResults: data => {
-        // Select2 necesita [{id, text}, ...]
-        return { results: Array.isArray(data) ? data : [] };
-      },
-      error: (xhr) => {
-        const msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : xhr.statusText;
-        console.error('Select2 error:', xhr.status, msg, xhr.responseText);
-        swal("Error","No se pudo buscar pacientes ("+xhr.status+"): "+msg,"error");
-      }
+      processResults: data => ({ results: Array.isArray(data) ? data : [] })
     },
     language: {
       inputTooShort: () => "Escriba al menos 2 caracteres...",
@@ -183,46 +194,49 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       searching:     () => "Buscando..."
     }
   });
-
   $pac.on('change', function(){ pacienteOk = !!$(this).val(); toggleGuardar(); });
 
-  // ---------- Cargar médicos por especialidad ----------
+  // Cargar médicos (id_especialidad_med) por especialidad
   $esp.on('change', function(){
     const espId = $(this).val();
     $med.prop('disabled', true).html('<option value="">Cargando...</option>');
     medicoOk=false; slotOk=false; toggleGuardar();
     $fecha.val(''); $hi.val(''); $hf.val('');
+
     if(!espId){
       $med.prop('disabled', true).html('<option value="">SELECCIONE</option>');
-      if(calendar) calendar.refetchEvents();
+      if (typeof calendar !== 'undefined') calendar.refetchEvents();
       return;
     }
-    $.post(
-      SERVER+'ajax/ajaxAgenda.php',
-      {
-        action:'load_medicos',
-        especialidad_id: espId,
-        sucursal_id: $('#sucursal_id').val() // ← enviar sucursal
-      },
-      function(html){
-        $med.html(html).prop('disabled', false);
-        if(calendar) calendar.refetchEvents();
-      }
-    ).fail(function(xhr){
+
+    $.post(SERVER+'ajax/ajaxAgenda.php', {
+      action:'load_medicos',
+      especialidad_id: espId,
+      sucursal_id: $('#sucursal_id').val()
+    }, function(html){
+      // Debe venir: <option value="id_especialidad_med">Dr(a). Nombre</option>
+      $med.html(html).prop('disabled', false);
+      if (typeof calendar !== 'undefined') calendar.refetchEvents();
+    }).fail(function(xhr){
       console.error('load_medicos FAIL', xhr.status, xhr.responseText);
       $med.html('<option value="">Error cargando médicos</option>').prop('disabled', true);
     });
-
   });
 
+  // Cambio de “médico”
   $med.on('change', function(){
     medicoOk = !!$(this).val();
     slotOk=false; toggleGuardar();
     $fecha.val(''); $hi.val(''); $hf.val('');
-    if(calendar) calendar.refetchEvents();
+    if (typeof calendar !== 'undefined') calendar.refetchEvents();
   });
 
   // ---------- FullCalendar ----------
+  const today00 = new Date(); today00.setHours(0,0,0,0);
+  function hm(date){ const h = String(date.getHours()).padStart(2,'0'); const m = String(date.getMinutes()).padStart(2,'0'); return `${h}:${m}`; }
+  function isWeekday(d){ const dow = d.getDay(); return dow >= 1 && dow <= 5; }
+  function within9to17(start, end){ const hs = hm(start), he = hm(end); return hs >= '09:00' && he <= '17:00'; }
+
   let calendarEl = document.getElementById('calendar');
   let calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'es',
@@ -230,11 +244,12 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     initialView: 'timeGridWeek',
     firstDay: 1,
     nowIndicator: true,
+    timeZone: 'local',
     headerToolbar: { left: 'today', center: 'title', right: 'prev,next' },
 
     businessHours: { daysOfWeek: [1,2,3,4,5], startTime: '09:00', endTime: '17:00' },
     hiddenDays: [0,6],
-    validRange: { start: new Date() },
+    validRange: { start: today00 },
 
     slotMinTime: '09:00:00',
     slotMaxTime: '17:00:00',
@@ -245,30 +260,40 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
 
     allDaySlot: false,
     selectable: true,
-    selectOverlap: false,
     unselectAuto: true,
     selectMirror: true,
+    selectOverlap: false,
 
+    // PINTADO FORZADO en cliente (por si el backend no manda "classNames")
+    eventDidMount: function(info){
+      if(!(info.event.classNames||[]).includes('reservado') &&
+        info.event.title && info.event.title.toLowerCase().includes('reservado')){
+        info.el.classList.add('reservado');
+      }
+    },
+
+    // Reglas duras de selección
     selectAllow: function(sel){
       if(!$med.val()) return false;
-      const now = new Date();
-      if (sel.start < now) return false;
-      // EXACTAMENTE 30 min
       const ms = sel.end.getTime() - sel.start.getTime();
-      return ms === 30*60*1000;
+      if(ms !== 30*60*1000) return false;
+      if(sel.start < today00) return false;
+      if(!isWeekday(sel.start) || !isWeekday(sel.end)) return false;
+      if(!within9to17(sel.start, sel.end)) return false;
+      return true;
     },
 
     select: function(info){
       const start = new Date(info.start);
-      const end   = new Date(start.getTime() + 30*60*1000);
+      const end   = new Date(info.end);
 
-      $fecha.val(toDateStr(start));
-      $hi.val(toTimeStr(start));
-      $hf.val(toTimeStr(end));
+      $fecha.val(`${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`);
+      $hi.val(`${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}`);
+      $hf.val(`${String(end.getHours()).padStart(2,'0')}:${String(end.getMinutes()).padStart(2,'0')}`);
 
       $.post(SERVER+'ajax/ajaxAgenda.php', {
         action: 'check_disponibilidad',
-        medico_codigo: $med.val(),
+        id_especialidad_med: $med.val(),
         fecha: $fecha.val(),
         hora_inicio: $hi.val(),
         hora_fin: $hf.val()
@@ -277,7 +302,7 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
           slotOk = true; toggleGuardar();
         }else{
           slotOk = false; toggleGuardar();
-          swal("Conflicto de horario", "El médico ya tiene una cita en ese rango", "warning");
+          swal("Conflicto de horario", "Ya existe una cita en ese rango", "warning");
           $fecha.val(''); $hi.val(''); $hf.val('');
           calendar.unselect();
         }
@@ -289,41 +314,103 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       });
     },
 
+    // Citas reservadas del médico/especialidad
     events: function(fetchInfo, success, fail){
-      const medico = $med.val();
-      if(!medico){ success([]); return; }
+      const idEM = $med.val();
+      if(!idEM){ success([]); return; }
+
       $.ajax({
         url: SERVER+'ajax/ajaxAgenda.php',
         type: 'POST',
         dataType: 'json',
+        cache: false,
+        headers: { 'Cache-Control':'no-store' },
         data: {
           action: 'listar_citas',
-          medico_codigo: medico,
+          id_especialidad_med: idEM,
           start: fetchInfo.startStr,
           end: fetchInfo.endStr
         },
         success: function(res){
-          const evs = (res||[]).map(e => ({ ...e, className:'reservado' }));
-          success(evs);
+          try{
+            const arr = (typeof res === 'string') ? JSON.parse(res) : res;
+            const withClass = (Array.isArray(arr) ? arr : []).map(e => {
+              // forzar clase si faltara
+              if(!e.classNames){ e.classNames = []; }
+              if(!e.classNames.includes('reservado')) e.classNames.push('reservado');
+              return e;
+            });
+            success(withClass);
+          }catch(e){
+            console.error('JSON parse error events:', e, res);
+            success([]);
+          }
         },
-        error: fail
+        error: function(xhr){
+          console.error('events FAIL', xhr.status, xhr.responseText);
+          fail(xhr);
+        }
       });
     },
+
+
     eventOverlap: false
   });
+
   calendar.render();
 
-  // ---------- Validación al enviar ----------
+  // ---------- Guardado por AJAX + refetch ----------
+  // Así ves el evento "Reservado" al instante, sin recargar toda la página
   $('#formCita').on('submit', function(e){
     if($btn.prop('disabled')){
       e.preventDefault();
       swal("Atención","Debe seleccionar paciente, médico y un horario disponible","warning");
       return;
     }
+    e.preventDefault(); // <- evitamos recarga completa
     $btn.prop('disabled', true).text('Guardando...');
+
+    $.post(window.location.href, $(this).serialize())
+      .done(function(html){
+        // Tu controller devuelve un sweet_alert en HTML.
+        // Consideramos éxito si contiene "Cita registrada".
+       if(/Cita registrada/i.test(html)){
+          swal("OK","La cita se registró con éxito","success");
+
+          // Pintado inmediato (opcional):
+          const startT = $('#fecha').val() + 'T' + $('#hora_inicio').val() + ':00';
+          const endT   = $('#fecha').val() + 'T' + $('#hora_fin').val() + ':00';
+          calendar.addEvent({
+            title: 'Reservado',
+            start: startT,
+            end: endT,
+            classNames: ['reservado']  // <- consistente con el feed
+          });
+
+          // Y recarga el feed para quedar sincronizado con BD:
+          calendar.refetchEvents();
+
+          // Limpieza
+          $('#hora_inicio,#hora_fin,#fecha').val('');
+          slotOk=false; toggleGuardar();
+          calendar.unselect();
+        }else{
+          // Muestra lo que devolvió (por si vino un error formateado)
+          swal("Aviso","No se pudo confirmar el guardado. Verifique mensajes.","warning");
+          console.log('RESPUESTA SERVIDOR:', html);
+        }
+      })
+      .fail(function(xhr){
+        swal("Error","No se pudo registrar la cita","error");
+        console.error('submit FAIL', xhr.status, xhr.responseText);
+      })
+      .always(function(){
+        $btn.prop('disabled', false).text('Guardar Cita');
+      });
   });
 })();
 </script>
+
 
 <?php
 else:
