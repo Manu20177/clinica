@@ -316,46 +316,45 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
 
     // Citas reservadas del médico/especialidad
     events: function(fetchInfo, success, fail){
-      const idEM = $med.val();
-      if(!idEM){ success([]); return; }
-
-      $.ajax({
-        url: SERVER+'ajax/ajaxAgenda.php',
-        type: 'POST',
-        dataType: 'json',
-        cache: false,
-        headers: { 'Cache-Control':'no-store' },
-        data: {
-          action: 'listar_citas',
-          id_especialidad_med: idEM,
-          start: fetchInfo.startStr,
-          end: fetchInfo.endStr
-        },
-        success: function(res){
-          try{
-            const arr = (typeof res === 'string') ? JSON.parse(res) : res;
-            const withClass = (Array.isArray(arr) ? arr : []).map(e => {
-              // forzar clase si faltara
-              if(!e.classNames){ e.classNames = []; }
-              if(!e.classNames.includes('reservado')) e.classNames.push('reservado');
-              return e;
-            });
-            success(withClass);
-          }catch(e){
-            console.error('JSON parse error events:', e, res);
-            success([]);
-          }
-        },
-        error: function(xhr){
-          console.error('events FAIL', xhr.status, xhr.responseText);
-          fail(xhr);
+    $.ajax({
+      url: SERVER+'ajax/ajaxAgenda.php',
+      type: 'POST',
+      dataType: 'json',
+      cache: false,
+      headers: { 'Cache-Control':'no-store' },
+      data: {
+        action: 'listar_citas_todas',
+        sucursal_id: $('#sucursal_id').val(),  // opcional: filtra por sucursal
+        start: fetchInfo.startStr,
+        end: fetchInfo.endStr
+      },
+      success: function(res){
+        try{
+          const arr = (typeof res === 'string') ? JSON.parse(res) : res;
+          // Aseguramos la clase 'reservado' para pintado rojo
+          const evs = (arr || []).map(e => {
+            e.classNames = e.classNames || [];
+            if(!e.classNames.includes('reservado')) e.classNames.push('reservado');
+            return e;
+          });
+          success(evs);
+        }catch(err){
+          console.error('JSON parse error events:', err, res);
+          success([]);
         }
-      });
-    },
+      },
+      error: function(xhr){
+        console.error('events FAIL', xhr.status, xhr.responseText);
+        fail(xhr);
+      }
+    });
+  },
+ 
 
 
     eventOverlap: false
   });
+  
 
   calendar.render();
 
