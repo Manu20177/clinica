@@ -7,7 +7,10 @@ if($actionsRequired){
 
 class agendaModel extends mainModel {
 
-    /* --- Buscar pacientes por cédula/nombres/apellidos --- */
+    /* ===========================
+       PACIENTES
+       =========================== */
+    /* Buscar pacientes por cédula/nombres/apellidos (máx 12 resultados) */
     protected function buscar_pacientes_model($q){
         $pdo = self::connect();
         $sql = "SELECT id_paciente, cedula, nombres, apellidos
@@ -24,36 +27,81 @@ class agendaModel extends mainModel {
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* --- Cargar especialidades activas --- */
+    /* ===========================
+       ESPECIALIDADES
+       =========================== */
+    /* Cargar especialidades activas (si se quiere, puedes filtrar por sucursal) */
     protected function load_especialidades_model($sucursal_id=null){
         $pdo = self::connect();
-        // Si tienes tabla sucursal_especialidad, filtra aquí
-        $sql = "SELECT id, nombre
-                  FROM especialidades
-                 WHERE estado = 'Activa'
-                 ORDER BY nombre ASC";
-        $st = $pdo->query($sql);
-        return $st->fetchAll(PDO::FETCH_ASSOC);
-    }
 
-    /* --- Cargar médicos por especialidad --- */
-    protected function load_medicos_model($especialidad_id, $sucursal_id=null){
-        $pdo = self::connect();
-        $sql = "SELECT u.Codigo AS medico_codigo,
-                       u.nombre_completo
-                  FROM medico_especialidad me
-                  INNER JOIN usuarios u ON u.Codigo = me.medico_codigo
-                 WHERE me.especialidad_id = :esp
-                   AND u.rol = 'MEDICO'
+        /* Opción simple (como la tuya): todas las activas */
+        if ($sucursal_id === null || $sucursal_id === '') {
+            $sql = "SELECT id, nombre
+                      FROM especialidades
+                     WHERE estado = 'Activa'
+                     ORDER BY nombre ASC";
+            $st = $pdo->query($sql);
+            return $st->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        /* Opción con filtro por sucursal si tu tabla medico_especialidad tiene sucursal_id:
+           Devuelve sólo especialidades con al menos un médico activo (privilegio 3) en esa sucursal. */
+        $sql = "SELECT DISTINCT e.id, e.nombre
+                  FROM especialidades e
+                  JOIN medico_especialidad me ON me.especialidad_id = e.id
+                  JOIN usuarios u            ON u.Codigo = me.medico_codigo
+                 WHERE e.estado = 'Activa'
+                   AND me.estado = 'Activa'
                    AND u.activo = 1
-                 ORDER BY u.nombre_completo ASC";
+                   AND u.privilegio = 3
+                   AND me.sucursal_id = :suc
+                 ORDER BY e.nombre ASC";
         $st = $pdo->prepare($sql);
-        $st->bindValue(':esp', $especialidad_id, PDO::PARAM_INT);
+        $st->bindValue(':suc', $sucursal_id, PDO::PARAM_STR);
         $st->execute();
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* --- Verificar solape de citas --- */
+    /* ===========================
+       MÉDICOS
+       =========================== */
+    /* Cargar médicos por especialidad (filtra usuarios con privilegio=3 y activos).
+       Si pasas $sucursal_id, también filtra por esa sucursal (si existe esa columna en medico_especialidad). */
+    protected function load_medicos_model($especialidad_id, $sucursal_id=null){
+        $pdo = self::connect();
+
+        $base = "SELECT u.Codigo AS medico_codigo,
+                        COALESCE(u.nombre_completo, CONCAT(u.apellidos,' ',u.nombres)) AS nombre_completo
+                   FROM medico_especialidad me
+                   INNER JOIN usuarios u ON u.Codigo = me.medico_codigo
+                  WHERE me.especialidad_id = :esp
+                    AND me.estado = 'Activa'
+                    AND u.activo = 1
+                    AND u.privilegio = 3";
+
+        // Si quieres además reforzar por rol, descomenta la línea:
+        // $base .= " AND u.rol = 'MEDICO' ";
+
+        if ($sucursal_id !== null && $sucursal_id !== '') {
+            $base .= " AND me.sucursal_id = :suc";
+        }
+
+        $base .= " ORDER BY nombre_completo ASC";
+
+        $st = $pdo->prepare($base);
+        $st->bindValue(':esp', $especialidad_id, PDO::PARAM_INT);
+        if ($sucursal_id !== null && $sucursal_id !== '') {
+            $st->bindValue(':suc', $sucursal_id, PDO::PARAM_STR);
+        }
+        $st->execute();
+        return $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* ===========================
+       DISPONIBILIDAD / SOLAPE
+       =========================== */
+    /* Verificar solape de citas del médico en el rango [start, end).
+       Estados bloqueantes: PENDIENTE, CONFIRMADA (tal como usas hoy). */
     protected function hay_solape_model($medico_codigo, $start, $end){
         $pdo = self::connect();
         $sql = "SELECT id
@@ -70,7 +118,11 @@ class agendaModel extends mainModel {
         return $st->fetch(PDO::FETCH_ASSOC) ? true : false;
     }
 
-    /* --- Listar citas de un médico en rango (para FullCalendar) --- */
+    /* ===========================
+       LISTADO PARA FULLCALENDAR
+       =========================== */
+    /* Listar citas de un médico en rango (para FullCalendar).
+       Mismos estados bloqueantes. */
     protected function listar_citas_model($medico_codigo, $start, $end){
         $pdo = self::connect();
         $sql = "SELECT id, fecha_inicio, fecha_fin
@@ -87,7 +139,9 @@ class agendaModel extends mainModel {
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* --- Crear cita --- */
+    /* ===========================
+       CREACIÓN DE CITA
+       =========================== */
     protected function crear_cita_model($data){
         $pdo = self::connect();
         $sql = "INSERT INTO citas
@@ -117,7 +171,9 @@ class agendaModel extends mainModel {
         return $st->execute();
     }
 
-    /* --- Marcar derivación como AGENDADA --- */
+    /* ===========================
+       DERIVACIONES
+       =========================== */
     protected function marcar_derivacion_agendada_model($derivacion_id){
         $pdo = self::connect();
         $sql = "UPDATE derivaciones SET estado='AGENDADA' WHERE id=:id";
