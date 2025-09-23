@@ -91,12 +91,13 @@ try {
       break;
 
     case 'listar_citas':
-      header('Content-Type: application/json; charset=utf-8');
-      $medico = isset($_POST['id_especialidad_med']) ? trim($_POST['id_especialidad_med']) : '';
-      $start  = isset($_POST['start']) ? trim($_POST['start']) : '';
-      $end    = isset($_POST['end']) ? trim($_POST['end']) : '';
-      echo $agendaCtrl->listar_citas_controller($medico, $start, $end);
-      break;
+        header('Content-Type: application/json; charset=utf-8');
+        $id_em = isset($_POST['id_especialidad_med']) ? (int)$_POST['id_especialidad_med'] : 0;
+        $start = isset($_POST['start']) ? trim($_POST['start']) : '';
+        $end   = isset($_POST['end'])   ? trim($_POST['end'])   : '';
+        echo $agendaCtrl->listar_citas_controller($id_em, $start, $end);
+        break;
+
 
     case 'listar_citas_todas':
         header('Content-Type: application/json; charset=utf-8');

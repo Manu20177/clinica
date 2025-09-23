@@ -48,6 +48,7 @@ class agendaController extends agendaModel {
       /* Guardar cita (ajustado a tu tabla) */
     public function add_cita_controller(){
         $paciente_id         = self::clean_string($_POST['paciente_id'] ?? '');
+        $estadoc         = self::clean_string($_POST['estadoc'] ?? '');
         $sucursal_id         = self::clean_string($_POST['sucursal_id'] ?? '');
         $id_especialidad_med = intval($_POST['id_especialidad_med'] ?? 0);
         $fecha               = self::clean_string($_POST['fecha'] ?? '');
@@ -95,7 +96,7 @@ class agendaController extends agendaModel {
         "id_especialidad_med" => $id_especialidad_med,
         "fecha_inicio"        => $fecha_inicio,
         "fecha_fin"           => $fecha_fin,
-        "estado"              => "PENDIENTE",
+        "estado"              => $estadoc,
         "creada_por"          => $creada_por
         ];
 
@@ -164,33 +165,66 @@ class agendaController extends agendaModel {
 
     /* Listar citas del médico en rango (JSON FullCalendar) */
    /* Listar citas del médico en rango (JSON FullCalendar) */
-    public function listar_citas_controller($medico_codigo, $startISO, $endISO){
-        if($medico_codigo==='' || $startISO==='' || $endISO===''){
+    public function listar_citas_controller($id_especialidad_med, $startISO, $endISO){
+        // Validaciones mínimas
+        $id = (int)$id_especialidad_med;
+        if($id <= 0 || $startISO==='' || $endISO===''){
+            header('Content-Type: application/json; charset=utf-8');
             return json_encode([]);
         }
 
+        // Normaliza rango recibido del calendario
         $start = date('Y-m-d H:i:s', strtotime($startISO));
         $end   = date('Y-m-d H:i:s', strtotime($endISO));
 
-        $rows = self::listar_citas_model($medico_codigo, $start, $end);
-        if(!$rows){ return json_encode([]); }
+        // Consulta
+        $rows = self::listar_citas_model($id, $start, $end);
+
+        header('Content-Type: application/json; charset=utf-8');
+
+        if(!$rows){ 
+            return json_encode([]); 
+        }
 
         $events = [];
         foreach($rows as $r){
+            // Título más descriptivo (opcional)
+            $doc  = trim(($r['apellidos'] ?? '').' '.($r['nombres'] ?? ''));
+            $esp  = $r['especialidad'] ?? '';
+            $pac  = $r['paciente_id'] ?? '';
+            $title = $r['estado'];
+            if($esp !== '')  { $title .= " · $esp"; }
+            if($doc !== '')  { $title .= " · Dr(a). $doc"; }
+            if($pac !== '')  { $title .= " · Pac: $pac"; }
+
+            // Fechas → ISO 8601 (compatibles con FullCalendar)
+            $startIso = date('c', strtotime($r['fecha_inicio']));
+            $endIso   = date('c', strtotime($r['fecha_fin']));
+
+            // Clases de estado
+            $cls     = ['reservado'];
+            $estado  = strtoupper($r['estado'] ?? '');
+            if($estado === 'CONFIRMADA')     $cls[] = 'estado-confirmada';
+            elseif($estado === 'CANCELADA')  $cls[] = 'estado-cancelada';
+            else                             $cls[] = 'estado-pendiente'; // PENDIENTE/otros
+
             $events[] = [
-                "id"         => (int)$r['id'],
-                "title"      => "Reservado",
-                // ← fechas en ISO 8601 (con “T”)
-                "start"      => date('c', strtotime($r['fecha_inicio'])),
-                "end"        => date('c', strtotime($r['fecha_fin'])),
-                // ← v6 usa classNames (array)
-                "classNames" => ["reservado"],
-                // por si ayuda al render
-                "display"    => "block"
+                "id"           => (int)$r['id'],
+                "title"        => $title,
+                "start"        => $startIso,
+                "end"          => $endIso,
+                "classNames"   => $cls,      // v6: arreglo
+                "display"      => "block",
+                "extendedProps"=> [
+                    "estado"              => $r['estado'] ?? '',
+                    "id_especialidad_med" => (int)($r['id_especialidad_med'] ?? $id)
+                ]
             ];
         }
-        return json_encode($events, JSON_UNESCAPED_UNICODE);
+
+        return json_encode($events, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
     }
+
 
     public function listar_citas_todas_controller($startISO, $endISO, $sucursal_id = null){
         if($startISO==='' || $endISO===''){ return json_encode([]); }

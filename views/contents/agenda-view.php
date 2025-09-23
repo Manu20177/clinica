@@ -30,9 +30,11 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
 .legend .dot { width:14px; height:14px; display:inline-block; border-radius:3px; margin-right:6px; }
 .dot-now { background:#5bc0de; }
 .dot-reserved { background:#d9534f; }
-.fc-event.reservado { background:#d9534f!important; border-color:#d9534f!important; color:#fff; }
-.fc-timegrid-event.reservado .fc-event-main,
-.fc-timegrid-event.reservado { background:#d9534f!important; border-color:#d9534f!important; color:#fff; }
+.dot-confirmed { background:#5cb85c; }
+.fc-event.reservado,
+.fc-timegrid-event.reservado { background:#d9534f!important; border-color:#d9534f!important; color:#fff!important; }
+.fc-event.estado-confirmada  { background:#5cb85c!important; border-color:#5cb85c!important; color:#fff!important; }
+.fc-event.estado-atendida    { background:#0275d8!important; border-color:#0275d8!important; color:#fff!important; }
 .fc-now-indicator-line { border-top: 2px solid #5bc0de; }
 .select2-container--default .select2-selection--single { height: 38px; }
 .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px; }
@@ -51,10 +53,22 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
   <form id="formCita" action="" method="POST" autocomplete="off">
     <!-- Paciente -->
     <div class="row">
-      <div class="col-xs-12 col-sm-8">
+      <div class="col-xs-12 col-sm-4">
         <div class="form-group label-floating is-focused">
           <label class="control-label">Paciente (cédula / nombres) *</label>
           <select id="paciente_id" name="paciente_id" class="form-control" style="width:100%;" required></select>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        
+        <div class="form-group label-floating is-focused">
+          <label class="control-label">Sucursal *</label>
+          <select class="form-control" id="sucursal_id_view" disabled>
+            <option value="">
+              <?php echo $sucursalActual ? htmlspecialchars($sucursalActual['nombre'],ENT_QUOTES,'UTF-8') : 'SELECCIONE'; ?>
+            </option>
+          </select>
+          <input type="hidden" name="sucursal_id" id="sucursal_id" value="<?php echo htmlspecialchars($sucId,ENT_QUOTES,'UTF-8'); ?>">
         </div>
       </div>
       <div class="col-xs-12 col-sm-4" style="margin-top:24px;">
@@ -68,13 +82,11 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     <div class="row">
       <div class="col-xs-12 col-sm-4">
         <div class="form-group label-floating is-focused">
-          <label class="control-label">Sucursal *</label>
-          <select class="form-control" id="sucursal_id_view" disabled>
-            <option value="">
-              <?php echo $sucursalActual ? htmlspecialchars($sucursalActual['nombre'],ENT_QUOTES,'UTF-8') : 'SELECCIONE'; ?>
-            </option>
+          <label class="control-label">Estado *</label>
+          <select name="estadoc" class="form-control" style="width:100%;" required>
+            <option value="RESERVADO">Reservado</option>
+            <option value="CONFIRMADA">Confirmado</option>
           </select>
-          <input type="hidden" name="sucursal_id" id="sucursal_id" value="<?php echo htmlspecialchars($sucId,ENT_QUOTES,'UTF-8'); ?>">
         </div>
       </div>
 
@@ -114,6 +126,7 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
         <div class="legend">
           <span><span class="dot dot-now"></span>Fecha actual</span>
           <span><span class="dot dot-reserved"></span>Reservado</span>
+          <span><span class="dot dot-confirmed"></span>Confirmado</span>
         </div>
         <small class="text-muted">Horario: 09:00 a 17:00 · Duración por cita: 30 min.</small>
       </div>
@@ -199,9 +212,17 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
   // Cargar médicos (id_especialidad_med) por especialidad
   $esp.on('change', function(){
     const espId = $(this).val();
+
+    // limpiar selección de médico y flags
+    $med.val('').trigger('change');   // ← MUY IMPORTANTE
     $med.prop('disabled', true).html('<option value="">Cargando...</option>');
-    medicoOk=false; slotOk=false; toggleGuardar();
+    medicoOk = false; slotOk = false; toggleGuardar();
     $fecha.val(''); $hi.val(''); $hf.val('');
+
+    // limpiar inmediatamente lo pintado en calendario
+    if (typeof calendar !== 'undefined') {
+      calendar.removeAllEvents();     // ← borra todo lo visible
+    }
 
     if(!espId){
       $med.prop('disabled', true).html('<option value="">SELECCIONE</option>');
@@ -214,14 +235,15 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       especialidad_id: espId,
       sucursal_id: $('#sucursal_id').val()
     }, function(html){
-      // Debe venir: <option value="id_especialidad_med">Dr(a). Nombre</option>
       $med.html(html).prop('disabled', false);
+      // aun sin médico seleccionado no habrá eventos (events() devolverá [])
       if (typeof calendar !== 'undefined') calendar.refetchEvents();
     }).fail(function(xhr){
       console.error('load_medicos FAIL', xhr.status, xhr.responseText);
       $med.html('<option value="">Error cargando médicos</option>').prop('disabled', true);
     });
   });
+
 
   // Cambio de “médico”
   $med.on('change', function(){
@@ -266,22 +288,36 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
 
     // PINTADO FORZADO en cliente (por si el backend no manda "classNames")
     eventDidMount: function(info){
-      if(!(info.event.classNames||[]).includes('reservado') &&
-        info.event.title && info.event.title.toLowerCase().includes('reservado')){
-        info.el.classList.add('reservado');
-      }
+      // Tooltip simple con título + estado
+      const est = (info.event.extendedProps?.estado || '').toUpperCase();
+      const t = info.event.title || '';
+      info.el.setAttribute('title', `${t} · Estado: ${est}`);
     },
+
 
     // Reglas duras de selección
     selectAllow: function(sel){
-      if(!$med.val()) return false;
+      if(!$('#id_especialidad_med').val()) return false;
+
+      // Debe ser exactamente de 30 minutos
       const ms = sel.end.getTime() - sel.start.getTime();
       if(ms !== 30*60*1000) return false;
-      if(sel.start < today00) return false;
+
+      // No permitir seleccionar en el pasado (hoy antes de ahora o días previos)
+      const now = new Date();  // hora actual
+      if (sel.start < now) return false;
+
+      // Solo días laborables y dentro de 09:00–17:00
+      const isWeekday = d => { const dow = d.getDay(); return dow >= 1 && dow <= 5; };
+      const hm = d => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const within9to17 = (s,e) => hm(s) >= '09:00' && hm(e) <= '17:00';
+
       if(!isWeekday(sel.start) || !isWeekday(sel.end)) return false;
       if(!within9to17(sel.start, sel.end)) return false;
+
       return true;
     },
+
 
     select: function(info){
       const start = new Date(info.start);
@@ -314,45 +350,62 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       });
     },
 
-    // Citas reservadas del médico/especialidad
-    events: function(fetchInfo, success, fail){
-    $.ajax({
-      url: SERVER+'ajax/ajaxAgenda.php',
-      type: 'POST',
-      dataType: 'json',
-      cache: false,
-      headers: { 'Cache-Control':'no-store' },
-      data: {
-        action: 'listar_citas_todas',
-        sucursal_id: $('#sucursal_id').val(),  // opcional: filtra por sucursal
-        start: fetchInfo.startStr,
-        end: fetchInfo.endStr
-      },
-      success: function(res){
-        try{
-          const arr = (typeof res === 'string') ? JSON.parse(res) : res;
-          // Aseguramos la clase 'reservado' para pintado rojo
-          const evs = (arr || []).map(e => {
-            e.classNames = e.classNames || [];
-            if(!e.classNames.includes('reservado')) e.classNames.push('reservado');
-            return e;
-          });
-          success(evs);
-        }catch(err){
-          console.error('JSON parse error events:', err, res);
-          success([]);
+   // Citas reservadas del médico/especialidad seleccionado
+  events: function(fetchInfo, success, fail){
+     // 🔧 Forzado para pruebas
+      //const idEM = 32;  
+      const idEM = $med.val(); // id_especialidad_med
+      if(!idEM){ success([]); return; }
+
+      $.ajax({
+        url: SERVER+'ajax/ajaxAgenda.php',
+        type: 'POST',
+        dataType: 'json',
+        cache: false,
+        headers: { 'Cache-Control':'no-store' },
+        data: {
+          action: 'listar_citas',
+          id_especialidad_med: idEM,
+          start: fetchInfo.startStr,
+          end:   fetchInfo.endStr
+        },
+        success: function(res){
+          try{
+            const arr = (typeof res === 'string') ? JSON.parse(res) : res;
+
+            const evs = (arr || []).map(e => {
+              const est = (e.extendedProps && e.extendedProps.estado ? e.extendedProps.estado : '').toUpperCase();
+
+              e.classNames = e.classNames || [];
+              // Limpia cualquier arrastre previo (por si el backend manda algo)
+              e.classNames = e.classNames.filter(c =>
+                c !== 'reservado' && c !== 'estado-reservada' &&
+                c !== 'estado-confirmada' && c !== 'estado-atendida'
+              );
+
+              // Aplica clase según estado permitido
+              if(est === 'RESERVADO'){
+                e.classNames.push('reservado','estado-reservada');   // rojo (tu CSS)
+              }else if(est === 'CONFIRMADA'){
+                e.classNames.push('estado-confirmada');               // verde sugerido
+              }else if(est === 'ATENDIDA'){
+                e.classNames.push('estado-atendida');                 // azul sugerido
+              }
+              return e;
+            });
+
+            success(evs);
+          }catch(err){
+            console.error('JSON parse error events:', err, res);
+            success([]);
+          }
+        },
+        error: function(xhr){
+          console.error('events FAIL', xhr.status, xhr.responseText);
+          fail(xhr);
         }
-      },
-      error: function(xhr){
-        console.error('events FAIL', xhr.status, xhr.responseText);
-        fail(xhr);
-      }
-    });
-  },
- 
-
-
-    eventOverlap: false
+      });
+    }
   });
   
 
@@ -376,15 +429,6 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
        if(/Cita registrada/i.test(html)){
           swal("OK","La cita se registró con éxito","success");
 
-          // Pintado inmediato (opcional):
-          const startT = $('#fecha').val() + 'T' + $('#hora_inicio').val() + ':00';
-          const endT   = $('#fecha').val() + 'T' + $('#hora_fin').val() + ':00';
-          calendar.addEvent({
-            title: 'Reservado',
-            start: startT,
-            end: endT,
-            classNames: ['reservado']  // <- consistente con el feed
-          });
 
           // Y recarga el feed para quedar sincronizado con BD:
           calendar.refetchEvents();

@@ -120,21 +120,38 @@ class agendaModel extends mainModel {
        =========================== */
     /* Listar citas de un médico en rango (para FullCalendar).
        Mismos estados bloqueantes. */
-    protected function listar_citas_model($medico_codigo, $start, $end){
+    // MODEL: solape correcto con la ventana solicitada
+    protected function listar_citas_model($id_especialidad_med, $start, $end){
         $pdo = self::connect();
-        $sql = "SELECT id, fecha_inicio, fecha_fin FROM
-                  citas c 
-                  WHERE c.id_especialidad_med = :medico
-                   AND estado IN ('PENDIENTE','CONFIRMADA')
-                   AND NOT (fecha_fin <= :end OR fecha_inicio >= :start)
-                 ORDER BY fecha_inicio ASC";
+
+        $sql = "SELECT
+                    c.id,
+                    c.paciente_id,
+                    c.id_especialidad_med,
+                    c.fecha_inicio,
+                    c.fecha_fin,
+                    c.estado,
+                    u.nombres,
+                    u.apellidos,
+                    e.nombre AS especialidad
+                FROM citas c
+                JOIN medico_especialidad me ON me.id_especialidad = c.id_especialidad_med
+                JOIN usuarios u            ON u.Codigo           = me.medico_codigo
+                JOIN especialidades e      ON e.id               = me.especialidad_id
+                WHERE c.id_especialidad_med = :id_em
+                AND c.estado IN ('RESERVADO','CONFIRMADA')
+                AND NOT (c.fecha_fin   <= :p_start OR c.fecha_inicio >= :p_end)
+                ORDER BY c.fecha_inicio ASC";
+
         $st = $pdo->prepare($sql);
-        $st->bindValue(':medico', $medico_codigo, PDO::PARAM_STR);
-        $st->bindValue(':start',  $start, PDO::PARAM_STR);
-        $st->bindValue(':end',    $end,   PDO::PARAM_STR);
+        $st->bindValue(':id_em',   (int)$id_especialidad_med, PDO::PARAM_INT);
+        $st->bindValue(':p_start', $start, PDO::PARAM_STR); // ← start va con p_start
+        $st->bindValue(':p_end',   $end,   PDO::PARAM_STR); // ← end   va con p_end
         $st->execute();
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
 
     protected function listar_citas_todas_model($start, $end, $sucursal_id = null){
         $pdo = self::connect();
