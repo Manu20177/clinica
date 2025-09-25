@@ -267,6 +267,66 @@ class agendaController extends agendaModel {
         return json_encode($events, JSON_UNESCAPED_UNICODE);
     }
 
+    public function detalle_cita_controller($id_cita){
+        $id = (int)$id_cita;
+        if ($id <= 0) return ['ok'=>false,'error'=>'ID inválido'];
+
+        $row = self::detalle_cita_model($id);
+        if (!$row) return ['ok'=>false,'error'=>'Cita no encontrada'];
+
+        // Normaliza fechas/horas
+        $fecha = $horaI = $horaF = '';
+        if (!empty($row['fecha_inicio'])) {
+            $tsI = strtotime($row['fecha_inicio']);
+            $fecha = date('Y-m-d', $tsI);
+            $horaI = date('H:i',   $tsI);
+        }
+        if (!empty($row['fecha_fin'])) {
+            $tsF = strtotime($row['fecha_fin']);
+            $horaF = date('H:i', $tsF);
+        }
+
+        return [
+            'ok'                => true,
+            'id'                => (int)$row['id'],
+            'estado'            => $row['estado'],
+            'fecha'             => $fecha,
+            'hora'              => $horaI,
+            'hora_inicio'       => $horaI,
+            'hora_fin'          => $horaF,
+            'paciente_id'       => $row['paciente_id'],
+            'paciente_cedula'   => $row['paciente_cedula'] ?? '',
+            'paciente_nombre'   => $row['pnombres'] ?? '',
+            'paciente_apellido' => $row['papellidos'] ?? '',
+            'medico_codigo'     => $row['medico_codigo'] ?? '',
+            'medico_nombre'     => $row['mnombres'] ?? '',
+            'medico_apellido'   => $row['mapellidos'] ?? '',
+            'especialidad'      => $row['especialidad'] ?? '',
+            'sucursal'          => $row['sucursal'] ?? '',
+            'creada_por'        => $row['creada_por'] ?? '',
+            'creado_en'         => $row['creado_en'] ?? '',
+        ];
+    }
+
+   public function cancelar_cita_controller($id, $razon){
+        $pdo = $this->connect(); // adapta a tu conexión
+        $usuario = isset($_SESSION['usuarioNombre']) ? $_SESSION['usuarioNombre'] : 'sistema';
+
+        $sql = "UPDATE citas 
+                SET estado = 'CANCELADA',
+                    notas = TRIM(CONCAT(IFNULL(notas,''), 
+                            CASE WHEN IFNULL(notas,'')='' THEN '' ELSE ' | ' END,
+                            'Cancelada: ', :razon, ' (', :usuario, ' ', NOW(), ')'))
+                WHERE id = :id
+                LIMIT 1";
+        $st = $pdo->prepare($sql);
+        $st->bindValue(':id', $id, PDO::PARAM_INT);
+        $st->bindValue(':razon', $razon, PDO::PARAM_STR);
+        $st->bindValue(':usuario', $usuario, PDO::PARAM_STR);
+        return $st->execute();
+    }
+
+
 
 
 

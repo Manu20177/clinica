@@ -24,6 +24,11 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
   $espStmt = $pc->execute_single_query("SELECT id, nombre FROM especialidades WHERE estado='Activa' ORDER BY nombre ASC");
 ?>
 <style>
+
+
+/* Evita stacking raros creados por contenedores */
+#calendar, .fc, .container-fluid{ position:relative; z-index:1; }
+
 .fc-toolbar-title { font-size: 1.6rem; }
 .fc-timegrid-slot { height: 2.2em; }
 .legend { margin-top: 10px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
@@ -145,84 +150,116 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     </p>
   </form>
 </div>
+<!-- Modal Detalle Cita -->
+<div class="modal fade" id="modalCita" tabindex="-1" role="dialog" aria-labelledby="modalCitaLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="modalCitaLabel">Detalle de Cita</h4>
+      </div>
+      <div class="modal-body">
+        <div id="detalle-cita-body">
+          <!-- contenido se inyecta por JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnEditarCita" type="button" class="btn btn-primary">Editar</button>
+        <button id="btnCancelarCita" type="button" class="btn btn-danger">Cancelar</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 <script>
-  // —— URL ABSOLUTA del AJAX —— (evita errores de ruta)
- 
+/* ——— helpers de UI para el modal ——— */
+function resetDetalleUI() {
+  // Estado base del modal de detalle
+  const $m = $('#modalCita');
+  $('.modal-title', $m).text('Detalle de Cita');
+  $('#detalle-cita-body').html('<p>Cargando detalle...</p>');
+  $('#btnEditarCita, #btnCancelarCita').show();
+}
+
+/* Asegura que el modal cuelgue de <body> y limpia backdrops viejos */
+$('#modalCita').appendTo('body');
+$('.modal-backdrop').remove();
+
+/* Resetea SIEMPRE al abrir/cerrar */
+$('#modalCita')
+  .off('show.bs.modal shown.bs.modal hidden.bs.modal')
+  .on('show.bs.modal', function(){ resetDetalleUI(); })
+  .on('hidden.bs.modal', function(){
+    $('#detalle-cita-body').empty();
+    $('#btnEditarCita, #btnCancelarCita').show();
+    $('.modal-title', this).text('Detalle de Cita');
+    $('.modal-backdrop').remove();
+  });
 
 (function(){
-   const AJAX = '<?= rtrim(SERVERURL, "/"); ?>/ajax/ajaxAgenda.php';
+  const AJAX  = '<?= rtrim(SERVERURL, "/"); ?>/ajax/ajaxAgenda.php';
+  const SERVER= '<?= rtrim(SERVERURL, "/"); ?>/';
+  const $btn  = $('#btnGuardar');
+  const $esp  = $('#especialidad_id');
+  const $med  = $('#id_especialidad_med');
+  const $fecha= $('#fecha');
+  const $hi   = $('#hora_inicio');
+  const $hf   = $('#hora_fin');
+
   console.log('[AJAX URL]', AJAX);
 
-  // Desactiva cache y loguea cualquier error global
   $.ajaxSetup({
-    cache: false,
+    cache:false,
     error: function(xhr, status, err){
       console.error('[AJAX ERROR]', status, err, xhr.status, xhr.responseText);
     }
   });
 
-  // —— PING DE DIAGNÓSTICO (debe salir SIEMPRE en Network) ——
   $.post(AJAX, { action:'diagnose' })
-    .done(function(res){
-      console.log('[diagnose OK]', res);
-    })
-    .fail(function(xhr){
+    .done(res => console.log('[diagnose OK]', res))
+    .fail(xhr => {
       console.error('[diagnose FAIL]', xhr.status, xhr.responseText);
       alert('No se pudo conectar con ajaxAgenda.php ('+xhr.status+'). Revisa consola/Network.');
     });
-  const SERVER = '<?php echo SERVERURL; ?>';
-  const $btn   = $('#btnGuardar');
-  const $esp   = $('#especialidad_id');
-  const $med   = $('#id_especialidad_med');
-
-  const $fecha = $('#fecha');
-  const $hi    = $('#hora_inicio');
-  const $hf    = $('#hora_fin');
 
   let pacienteOk=false, medicoOk=false, slotOk=false;
   function toggleGuardar(){ $btn.prop('disabled', !(pacienteOk && medicoOk && slotOk)); }
 
-  // Select2 especialidad (solo estilo)
+  // Select2
   $('.js-especialidad-select').select2({ placeholder:"Seleccione una especialidad", allowClear:true, width:'100%' });
-
-  // Paciente (Select2)
   const $pac = $('#paciente_id');
   $pac.select2({
-    placeholder: 'Escriba cédula o nombre...',
-    minimumInputLength: 2,
-    ajax: {
+    placeholder:'Escriba cédula o nombre...',
+    minimumInputLength:2,
+    ajax:{
       url: SERVER+'ajax/ajaxAgenda.php',
-      type: 'POST',
-      dataType: 'json',
-      delay: 250,
-      cache: false,
-      data: params => ({ action: 'buscar_pacientes_json', q: params.term }),
+      type:'POST', dataType:'json', delay:250, cache:false,
+      data: params => ({ action:'buscar_pacientes_json', q: params.term }),
       beforeSend: xhr => xhr.setRequestHeader('Cache-Control','no-store'),
       processResults: data => ({ results: Array.isArray(data) ? data : [] })
     },
-    language: {
-      inputTooShort: () => "Escriba al menos 2 caracteres...",
-      noResults:     () => "Sin resultados",
-      searching:     () => "Buscando..."
+    language:{
+      inputTooShort: ()=>"Escriba al menos 2 caracteres...",
+      noResults: ()=>"Sin resultados",
+      searching: ()=>"Buscando..."
     }
   });
   $pac.on('change', function(){ pacienteOk = !!$(this).val(); toggleGuardar(); });
 
-  // Cargar médicos (id_especialidad_med) por especialidad
+  // Cargar médicos por especialidad
   $esp.on('change', function(){
     const espId = $(this).val();
-
-    // limpiar selección de médico y flags
-    $med.val('').trigger('change');   // ← MUY IMPORTANTE
+    $med.val('').trigger('change');
     $med.prop('disabled', true).html('<option value="">Cargando...</option>');
-    medicoOk = false; slotOk = false; toggleGuardar();
+    medicoOk=false; slotOk=false; toggleGuardar();
     $fecha.val(''); $hi.val(''); $hf.val('');
-
-    // limpiar inmediatamente lo pintado en calendario
-    if (typeof calendar !== 'undefined') {
-      calendar.removeAllEvents();     // ← borra todo lo visible
-    }
+    if (typeof calendar !== 'undefined') calendar.removeAllEvents();
 
     if(!espId){
       $med.prop('disabled', true).html('<option value="">SELECCIONE</option>');
@@ -231,12 +268,9 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     }
 
     $.post(SERVER+'ajax/ajaxAgenda.php', {
-      action:'load_medicos',
-      especialidad_id: espId,
-      sucursal_id: $('#sucursal_id').val()
+      action:'load_medicos', especialidad_id: espId, sucursal_id: $('#sucursal_id').val()
     }, function(html){
       $med.html(html).prop('disabled', false);
-      // aun sin médico seleccionado no habrá eventos (events() devolverá [])
       if (typeof calendar !== 'undefined') calendar.refetchEvents();
     }).fail(function(xhr){
       console.error('load_medicos FAIL', xhr.status, xhr.responseText);
@@ -244,8 +278,6 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     });
   });
 
-
-  // Cambio de “médico”
   $med.on('change', function(){
     medicoOk = !!$(this).val();
     slotOk=false; toggleGuardar();
@@ -253,147 +285,202 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     if (typeof calendar !== 'undefined') calendar.refetchEvents();
   });
 
-  // ---------- FullCalendar ----------
+  // —— FullCalendar ——
   const today00 = new Date(); today00.setHours(0,0,0,0);
-  function hm(date){ const h = String(date.getHours()).padStart(2,'0'); const m = String(date.getMinutes()).padStart(2,'0'); return `${h}:${m}`; }
-  function isWeekday(d){ const dow = d.getDay(); return dow >= 1 && dow <= 5; }
-  function within9to17(start, end){ const hs = hm(start), he = hm(end); return hs >= '09:00' && he <= '17:00'; }
 
   let calendarEl = document.getElementById('calendar');
   let calendar = new FullCalendar.Calendar(calendarEl, {
-    locale: 'es',
-    height: 'auto',
-    initialView: 'timeGridWeek',
-    firstDay: 1,
-    nowIndicator: true,
-    timeZone: 'local',
-    headerToolbar: { left: 'today', center: 'title', right: 'prev,next' },
+    locale:'es',
+    height:'auto',
+    initialView:'timeGridWeek',
+    firstDay:1,
+    nowIndicator:true,
+    timeZone:'local',
+    headerToolbar:{ left:'today', center:'title', right:'prev,next' },
+    businessHours:{ daysOfWeek:[1,2,3,4,5], startTime:'09:00', endTime:'17:00' },
+    hiddenDays:[0,6],
+    validRange:{ start: today00 },
+    slotMinTime:'09:00:00',
+    slotMaxTime:'17:00:00',
+    slotDuration:'00:30:00',
+    snapDuration:'00:30:00',
+    slotLabelInterval:{ minutes:30 },
+    slotLabelFormat:{ hour:'2-digit', minute:'2-digit', hour12:false },
+    allDaySlot:false,
+    selectable:true,
+    unselectAuto:true,
+    selectMirror:true,
+    selectOverlap:false,
 
-    businessHours: { daysOfWeek: [1,2,3,4,5], startTime: '09:00', endTime: '17:00' },
-    hiddenDays: [0,6],
-    validRange: { start: today00 },
-
-    slotMinTime: '09:00:00',
-    slotMaxTime: '17:00:00',
-    slotDuration: '00:30:00',
-    snapDuration: '00:30:00',
-    slotLabelInterval: { minutes: 30 },
-    slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-
-    allDaySlot: false,
-    selectable: true,
-    unselectAuto: true,
-    selectMirror: true,
-    selectOverlap: false,
-
-    // PINTADO FORZADO en cliente (por si el backend no manda "classNames")
     eventDidMount: function(info){
-      // Tooltip simple con título + estado
       const est = (info.event.extendedProps?.estado || '').toUpperCase();
       const t = info.event.title || '';
       info.el.setAttribute('title', `${t} · Estado: ${est}`);
     },
 
-
-    // Reglas duras de selección
     selectAllow: function(sel){
-      if(!$('#id_especialidad_med').val()) return false;
-
-      // Debe ser exactamente de 30 minutos
+      if(!$med.val()) return false;
       const ms = sel.end.getTime() - sel.start.getTime();
       if(ms !== 30*60*1000) return false;
-
-      // No permitir seleccionar en el pasado (hoy antes de ahora o días previos)
-      const now = new Date();  // hora actual
+      const now = new Date();
       if (sel.start < now) return false;
-
-      // Solo días laborables y dentro de 09:00–17:00
-      const isWeekday = d => { const dow = d.getDay(); return dow >= 1 && dow <= 5; };
+      const isWeekday = d => { const dow=d.getDay(); return dow>=1 && dow<=5; };
       const hm = d => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      const within9to17 = (s,e) => hm(s) >= '09:00' && hm(e) <= '17:00';
-
+      const within = (s,e)=> hm(s) >= '09:00' && hm(e) <= '17:00';
       if(!isWeekday(sel.start) || !isWeekday(sel.end)) return false;
-      if(!within9to17(sel.start, sel.end)) return false;
-
+      if(!within(sel.start, sel.end)) return false;
       return true;
     },
 
-
     select: function(info){
-      const start = new Date(info.start);
-      const end   = new Date(info.end);
-
+      const start = new Date(info.start), end = new Date(info.end);
       $fecha.val(`${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`);
       $hi.val(`${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}`);
       $hf.val(`${String(end.getHours()).padStart(2,'0')}:${String(end.getMinutes()).padStart(2,'0')}`);
 
       $.post(SERVER+'ajax/ajaxAgenda.php', {
-        action: 'check_disponibilidad',
-        id_especialidad_med: $med.val(),
-        fecha: $fecha.val(),
-        hora_inicio: $hi.val(),
-        hora_fin: $hf.val()
+        action:'check_disponibilidad',
+        id_especialidad_med:$med.val(),
+        fecha:$fecha.val(),
+        hora_inicio:$hi.val(),
+        hora_fin:$hf.val()
       }, function(res){
-        if(res && res.disponible){
-          slotOk = true; toggleGuardar();
-        }else{
-          slotOk = false; toggleGuardar();
-          swal("Conflicto de horario", "Ya existe una cita en ese rango", "warning");
-          $fecha.val(''); $hi.val(''); $hf.val('');
-          calendar.unselect();
+        if(res && res.disponible){ slotOk=true; toggleGuardar(); }
+        else{
+          slotOk=false; toggleGuardar();
+          swal("Conflicto de horario","Ya existe una cita en ese rango","warning");
+          $fecha.val(''); $hi.val(''); $hf.val(''); calendar.unselect();
         }
       }, 'json').fail(function(){
-        slotOk = false; toggleGuardar();
-        swal("Error", "No se pudo validar disponibilidad", "error");
-        $fecha.val(''); $hi.val(''); $hf.val('');
-        calendar.unselect();
+        slotOk=false; toggleGuardar();
+        swal("Error","No se pudo validar disponibilidad","error");
+        $fecha.val(''); $hi.val(''); $hf.val(''); calendar.unselect();
       });
     },
 
-   // Citas reservadas del médico/especialidad seleccionado
-  events: function(fetchInfo, success, fail){
-     // 🔧 Forzado para pruebas
-      //const idEM = 32;  
-      const idEM = $med.val(); // id_especialidad_med
+    eventClick: function(info){
+      info.jsEvent.preventDefault();
+      const idCita = info.event.id;
+
+      // fuerza estado base
+      resetDetalleUI();
+      $('.modal-backdrop').remove();
+      $('#modalCita').modal({ backdrop:true, keyboard:true, show:true });
+
+      $.ajax({
+        url: SERVER+'ajax/ajaxAgenda.php',
+        type:'POST', dataType:'json',
+        data:{ action:'detalle_cita', id:idCita, debug:1 },
+      })
+      .done(function(res){
+        if(!res){ $('#detalle-cita-body').html('<div class="alert alert-danger">Respuesta vacía</div>'); return; }
+        if(res.ok === false){
+          const msg = (res.error ? res.error : 'Error desconocido');
+          $('#detalle-cita-body').html('<div class="alert alert-danger">'+msg+'</div>');
+          return;
+        }
+
+        const fecha = (res.fecha || '');
+        const rango = (res.hora_inicio && res.hora_fin) ? (res.hora_inicio+' - '+res.hora_fin) : (res.hora||'');
+
+        const detalleHTML = `
+          <div id="vista-detalle">
+            <table class="table table-condensed">
+              <tr><th>Estado</th><td>${(res.estado||'').toUpperCase()}</td></tr>
+              <tr><th>Paciente</th><td>${res.paciente_nombre||''} ${res.paciente_apellido||''} ${res.paciente_cedula ? ' ('+res.paciente_cedula+')' : ''}</td></tr>
+              <tr><th>Médico</th><td>${res.medico_nombre||''} ${res.medico_apellido||''}</td></tr>
+              <tr><th>Especialidad</th><td>${res.especialidad||''}</td></tr>
+              <tr><th>Fecha</th><td>${fecha}</td></tr>
+              <tr><th>Hora</th><td>${rango}</td></tr>
+              <tr><th>Sucursal</th><td>${res.sucursal||''}</td></tr>
+              <tr><th>Creada por</th><td>${res.creada_por||''} ${res.creado_en ? ' · '+res.creado_en : ''}</td></tr>
+            </table>
+          </div>
+          <div id="vista-cancelar" style="display:none;">
+            <div class="form-group">
+              <label>Razón de cancelación</label>
+              <textarea id="cancelRazonInline" class="form-control" rows="3" placeholder="Ej: Paciente no se presentó"></textarea>
+              <div id="cancelError" class="text-danger" style="display:none;margin-top:6px;"></div>
+            </div>
+            <div class="text-right">
+              <button type="button" class="btn btn-default" id="btnCancelarVolver">Volver</button>
+              <button type="button" class="btn btn-danger" id="btnCancelarConfirmar">Confirmar cancelación</button>
+            </div>
+          </div>
+        `;
+        $('#detalle-cita-body').html(detalleHTML);
+
+        // Editar
+        $('#btnEditarCita').off('click').on('click', function(){
+          window.location.href = SERVER + 'citaeditar/' + idCita + '/';
+        });
+
+        // Ir a cancelar (vista inline)
+        $('#btnCancelarCita').off('click').on('click', function(){
+          $('#vista-detalle').hide();
+          $('#vista-cancelar').show();
+          $('#btnEditarCita, #btnCancelarCita').hide();
+          $('.modal-title', '#modalCita').text('Cancelar cita');
+          setTimeout(function(){ $('#cancelRazonInline').focus(); }, 150);
+        });
+
+        // Volver
+        $('#detalle-cita-body').on('click', '#btnCancelarVolver', function(){
+          $('#vista-cancelar').hide();
+          $('#vista-detalle').show();
+          $('#btnEditarCita, #btnCancelarCita').show();
+          $('.modal-title', '#modalCita').text('Detalle de Cita');
+        });
+
+        // Confirmar cancelación
+        $('#detalle-cita-body').on('click', '#btnCancelarConfirmar', function(){
+          const razon = ($('#cancelRazonInline').val() || '').trim();
+          if(!razon){ $('#cancelError').text('Debes ingresar una razón.').show(); return; }
+          $('#cancelError').hide().text('');
+          const $b = $(this).prop('disabled', true).text('Cancelando...');
+
+          $.post(SERVER+'ajax/ajaxAgenda.php', { action:'cancelar_cita', id:idCita, razon:razon }, function(r){
+            if(r && r.ok){
+              (window.Swal&&Swal.fire) ? Swal.fire('OK','Cita cancelada','success') : (window.swal&&swal('OK','Cita cancelada','success'));
+              $('#modalCita').modal('hide');
+              calendar.refetchEvents();
+            }else{
+              const msg = (r && r.error) ? r.error : 'No se pudo cancelar';
+              (window.Swal&&Swal.fire) ? Swal.fire('Error', msg, 'error') : (window.swal&&swal('Error', msg, 'error'));
+              $b.prop('disabled', false).text('Confirmar cancelación');
+            }
+          }, 'json').fail(function(){
+            (window.Swal&&Swal.fire) ? Swal.fire('Error','No se pudo cancelar','error') : (window.swal&&swal('Error','No se pudo cancelar','error'));
+            $b.prop('disabled', false).text('Confirmar cancelación');
+          });
+        });
+      })
+      .fail(function(xhr){
+        $('#detalle-cita-body').html('<div class="alert alert-danger">Error de comunicación ('+xhr.status+')</div>');
+      });
+    },
+
+    // Cargar eventos
+    events: function(fetchInfo, success, fail){
+      const idEM = $med.val();
       if(!idEM){ success([]); return; }
 
       $.ajax({
         url: SERVER+'ajax/ajaxAgenda.php',
-        type: 'POST',
-        dataType: 'json',
-        cache: false,
-        headers: { 'Cache-Control':'no-store' },
-        data: {
-          action: 'listar_citas',
-          id_especialidad_med: idEM,
-          start: fetchInfo.startStr,
-          end:   fetchInfo.endStr
-        },
+        type:'POST', dataType:'json', cache:false,
+        headers:{ 'Cache-Control':'no-store' },
+        data:{ action:'listar_citas', id_especialidad_med:idEM, start:fetchInfo.startStr, end:fetchInfo.endStr },
         success: function(res){
           try{
             const arr = (typeof res === 'string') ? JSON.parse(res) : res;
-
             const evs = (arr || []).map(e => {
               const est = (e.extendedProps && e.extendedProps.estado ? e.extendedProps.estado : '').toUpperCase();
-
-              e.classNames = e.classNames || [];
-              // Limpia cualquier arrastre previo (por si el backend manda algo)
-              e.classNames = e.classNames.filter(c =>
-                c !== 'reservado' && c !== 'estado-reservada' &&
-                c !== 'estado-confirmada' && c !== 'estado-atendida'
-              );
-
-              // Aplica clase según estado permitido
-              if(est === 'RESERVADO'){
-                e.classNames.push('reservado','estado-reservada');   // rojo (tu CSS)
-              }else if(est === 'CONFIRMADA'){
-                e.classNames.push('estado-confirmada');               // verde sugerido
-              }else if(est === 'ATENDIDA'){
-                e.classNames.push('estado-atendida');                 // azul sugerido
-              }
+              e.classNames = (e.classNames || []).filter(c => c!=='reservado' && c!=='estado-reservada' && c!=='estado-confirmada' && c!=='estado-atendida');
+              if(est === 'RESERVADO')   e.classNames.push('reservado','estado-reservada');
+              else if(est === 'CONFIRMADA') e.classNames.push('estado-confirmada');
+              else if(est === 'ATENDIDA')   e.classNames.push('estado-atendida');
               return e;
             });
-
             success(evs);
           }catch(err){
             console.error('JSON parse error events:', err, res);
@@ -407,38 +494,28 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
       });
     }
   });
-  
 
   calendar.render();
 
-  // ---------- Guardado por AJAX + refetch ----------
-  // Así ves el evento "Reservado" al instante, sin recargar toda la página
+  // Guardado por AJAX
   $('#formCita').on('submit', function(e){
     if($btn.prop('disabled')){
       e.preventDefault();
       swal("Atención","Debe seleccionar paciente, médico y un horario disponible","warning");
       return;
     }
-    e.preventDefault(); // <- evitamos recarga completa
+    e.preventDefault();
     $btn.prop('disabled', true).text('Guardando...');
 
     $.post(window.location.href, $(this).serialize())
       .done(function(html){
-        // Tu controller devuelve un sweet_alert en HTML.
-        // Consideramos éxito si contiene "Cita registrada".
-       if(/Cita registrada/i.test(html)){
+        if(/Cita registrada/i.test(html)){
           swal("OK","La cita se registró con éxito","success");
-
-
-          // Y recarga el feed para quedar sincronizado con BD:
           calendar.refetchEvents();
-
-          // Limpieza
           $('#hora_inicio,#hora_fin,#fecha').val('');
           slotOk=false; toggleGuardar();
           calendar.unselect();
         }else{
-          // Muestra lo que devolvió (por si vino un error formateado)
           swal("Aviso","No se pudo confirmar el guardado. Verifique mensajes.","warning");
           console.log('RESPUESTA SERVIDOR:', html);
         }
@@ -451,8 +528,12 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
         $btn.prop('disabled', false).text('Guardar Cita');
       });
   });
-})();
+
+})(); // fin IIFE
+
+/* ——— IMPORTANTE: se eliminó el submit de #formCancelarCita porque ya no existe ——— */
 </script>
+
 
 
 <?php

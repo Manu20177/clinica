@@ -212,4 +212,42 @@ class agendaModel extends mainModel {
         $st->bindValue(':id', $derivacion_id, PDO::PARAM_INT);
         return $st->execute();
     }
+
+    protected function detalle_cita_model($id_cita){
+        $pdo = self::connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT
+                c.id,
+                c.estado,
+                c.paciente_id,
+                c.id_especialidad_med,
+                c.fecha_inicio,
+                c.fecha_fin,
+                c.creada_por,
+                c.creado_en,
+                p.cedula      AS paciente_cedula,
+                p.nombres     AS pnombres,
+                p.apellidos   AS papellidos,
+                me.medico_codigo,
+                u.nombres     AS mnombres,
+                u.apellidos   AS mapellidos,
+                e.nombre      AS especialidad,
+                s.nombre      AS sucursal
+                FROM citas c
+                JOIN medico_especialidad me ON me.id_especialidad     = c.id_especialidad_med  -- clave relación
+                JOIN usuarios u            ON u.Codigo   = me.medico_codigo       -- ojo nombre exacto
+                JOIN especialidades e      ON e.id       = me.especialidad_id
+                JOIN pacientes p           ON p.id_paciente = c.paciente_id
+                LEFT JOIN sucursales s     ON s.id_suc   = c.sucursal_id
+                WHERE c.id = :id
+                LIMIT 1";
+
+        $st = $pdo->prepare($sql);
+        $st->bindValue(':id', (int)$id_cita, PDO::PARAM_INT);
+        $st->execute();
+        return $st->fetch(PDO::FETCH_ASSOC);
+    }
+
+
 }

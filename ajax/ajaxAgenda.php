@@ -107,6 +107,62 @@ try {
         echo $agendaCtrl->listar_citas_todas_controller($start, $end, $suc);
         break;
 
+    case 'detalle_cita': {
+        header('Content-Type: application/json; charset=utf-8');
+
+        // Debug temporal
+        $debug = isset($_POST['debug']) || isset($_GET['debug']);
+
+        try {
+            $id = isset($_POST['id']) ? (int)$_POST['id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
+            if ($id <= 0) {
+                http_response_code($debug ? 200 : 400);
+                echo json_encode(['ok'=>false,'error'=>'ID de cita inválido']); break;
+            }
+
+            // Asegura require con ruta correcta, evita 500 por path
+            if (!class_exists('agendaController')) {
+                require_once __DIR__ . '/../controllers/agendaController.php';
+            }
+            $agendaCtrl = new agendaController();
+
+            $data = $agendaCtrl->detalle_cita_controller($id);
+
+            if (!$data || (isset($data['ok']) && $data['ok']===false)) {
+                http_response_code($debug ? 200 : 404);
+                echo json_encode($data ?: ['ok'=>false,'error'=>'Cita no encontrada']); break;
+            }
+
+            echo json_encode($data, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        } catch (Throwable $e) {
+            error_log('[detalle_cita] '.$e->getMessage().' @ '.$e->getFile().':'.$e->getLine());
+            if ($debug) {
+                http_response_code(200); // para que el .done() lo vea
+                echo json_encode(['ok'=>false,'error'=>$e->getMessage(),'file'=>$e->getFile(),'line'=>$e->getLine()]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['ok'=>false]);
+            }
+        }
+        break;
+    }
+
+    // ajax/ajaxAgenda.php
+    case 'cancelar_cita':
+      header('Content-Type: application/json; charset=utf-8');
+      $id    = isset($_POST['id'])    ? (int)$_POST['id'] : 0;
+      $razon = trim($_POST['razon'] ?? '');
+      if($id<=0 || $razon===''){ echo json_encode(['ok'=>false,'error'=>'Datos incompletos']); break; }
+      $ok = $agendaCtrl->cancelar_cita_controller($id, $razon);
+      echo json_encode(['ok'=>$ok ? true:false, 'error'=>$ok?null:'No se pudo cancelar']);
+      break;
+
+
+
+
+
+
+
 
     default:
       http_response_code(400);
