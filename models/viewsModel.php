@@ -23,6 +23,10 @@
 				$views=="especialidadeslist" ||	
 				$views=="especialidadesinfo" ||	
 				$views=="espemedicolist" ||	
+				$views=="cobros" ||	
+				$views=="cobroslist" ||	
+				$views=="cobroprint" ||	
+				$views=="notificaciones" ||	
 				
 			
 				$views=="backup" ||	

@@ -155,7 +155,7 @@ function isOpenSubMenu($pages, $currentPage) {
 
 			<?php elseif($_SESSION['userType']=="Secretaria"): ?>
 			<li>
-				<a href="<?php echo SERVERURL; ?>home/" class="<?php echo ($currentPage=='home')?'active':''; ?>">
+				<a href="<?php echo SERVERURL; ?>homeSecre/" class="<?php echo ($currentPage=='home')?'active':''; ?>">
 					<i class="zmdi zmdi-view-dashboard zmdi-hc-fw"></i> Inicio
 				</a>
 			</li>
@@ -192,11 +192,7 @@ function isOpenSubMenu($pages, $currentPage) {
 							<i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Agendar Citas
 						</a>
 					</li>
-					<li>
-						<a href="<?php echo SERVERURL; ?>agendalist/" class="<?php echo ($currentPage=='agendaelist')?'active':''; ?>">
-							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Catálogo de Especialidades
-						</a>
-					</li>
+				
 					<li>
 						<a href="<?php echo SERVERURL; ?>agendaderivaciones/" class="<?php echo ($currentPage=='agendaderivaciones')?'active':''; ?>">
 							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Bandeja de Derivaciones
@@ -234,7 +230,7 @@ function isOpenSubMenu($pages, $currentPage) {
 			</li>
 			<li class="<?php echo isActiveMenu(['cobros','cobroslist'], $currentPage); ?>">
 				<a href="#!" class="btn-sideBar-SubMenu">
-					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Ingreso y Cobros Internos <i class="zmdi zmdi-caret-down pull-right"></i>
+					<i class="zmdi zmdi-face zmdi-hc-fw"></i> Cobros Internos <i class="zmdi zmdi-caret-down pull-right"></i>
 				</a>
 				<ul class="list-unstyled full-box <?php echo isOpenSubMenu(['cobros','cobroslist'], $currentPage); ?>">
 					<li>
@@ -248,6 +244,11 @@ function isOpenSubMenu($pages, $currentPage) {
 						</a>
 					</li>
 				</ul>
+			</li>
+			<li>
+				<a href="<?php echo SERVERURL; ?>notificaciones/" class="<?php echo ($currentPage=='notificaciones')?'active':''; ?>">
+					<i class="zmdi zmdi-view-dashboard zmdi-hc-fw"></i> Inicio
+				</a>
 			</li>
 			<li class="<?php echo isActiveMenu(['reportes','reporteslist'], $currentPage); ?>">
 				<a href="#!" class="btn-sideBar-SubMenu">
@@ -266,6 +267,7 @@ function isOpenSubMenu($pages, $currentPage) {
 					</li>
 				</ul>
 			</li>
+			
 			
 
 
