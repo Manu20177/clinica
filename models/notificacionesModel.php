@@ -20,7 +20,7 @@ class notificacionesModel extends mainModel {
   }
 
   /* Lista (prioriza no leídas), con límite */
-  protected function list_model($userKey, $limit = 10) {
+  protected function list_model($userKey, $limit = 15) {
     $limit = max(1, min(50, (int)$limit));
     $sql = "SELECT id, titulo, mensaje, url, creado_en, leido_en
             FROM notificaciones
