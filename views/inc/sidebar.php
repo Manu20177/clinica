@@ -247,7 +247,7 @@ function isOpenSubMenu($pages, $currentPage) {
 			</li>
 			<li>
 				<a href="<?php echo SERVERURL; ?>notificaciones/" class="<?php echo ($currentPage=='notificaciones')?'active':''; ?>">
-					<i class="zmdi zmdi-view-dashboard zmdi-hc-fw"></i> Inicio
+					<i class="zmdi zmdi-notifications zmdi-hc-fw"></i> Notificaciones
 				</a>
 			</li>
 			<li class="<?php echo isActiveMenu(['reportes','reporteslist'], $currentPage); ?>">

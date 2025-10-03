@@ -27,12 +27,12 @@
 <div class="container-fluid">
   <ul class="breadcrumb breadcrumb-tabs">
     <li class="active">
-      <a href="<?php echo SERVERURL; ?>cobro/" class="btn btn-info">
+      <a href="<?php echo SERVERURL; ?>cobros/" class="btn btn-info">
         <i class="zmdi zmdi-plus"></i> Nuevo
       </a>
     </li>
     <li>
-      <a href="<?php echo SERVERURL; ?>cobrolist/" class="btn btn-success">
+      <a href="<?php echo SERVERURL; ?>cobroslist/" class="btn btn-success">
         <i class="zmdi zmdi-format-list-bulleted"></i> Lista
       </a>
     </li>
