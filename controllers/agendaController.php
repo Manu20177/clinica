@@ -117,8 +117,8 @@ class agendaController extends agendaModel {
         }
     }
 
-    public function add_lista_espera_controller(){
-        $id_cita         = self::clean_string($_POST['id_cita'] ?? '');
+    public function add_lista_espera_controller($id_cita){
+
         $sql = "UPDATE citas 
                 SET estado = 'LISTA_ESPERA'
                     

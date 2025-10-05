@@ -11,15 +11,11 @@ if(isset($_SESSION['userType']) && $_SESSION['userType']==="Secretaria"):
     isset($_POST['paciente_id'], $_POST['sucursal_id'], $_POST['id_especialidad_med'],
           $_POST['fecha'], $_POST['hora_inicio'], $_POST['hora_fin'])
   ){
-    if ($_POST['estadoc']!='LISTA_ESPERA') {
+    
       # code...
         echo $agendaCtrl->add_cita_controller();
 
-    }else {
-      # code...
-        echo $agendaCtrl->add_lista_espera_controller();
-
-    }
+    
   }
 
   $sucId = $_SESSION['userIdSuc'];
@@ -246,19 +242,19 @@ let currentEvent = null;
 // ===== Modal acciones (ver / WL / confirmar / cancelar)
 function abrirModalAccion(event){
   currentEvent = event;
-  const est = (event.extendedProps && event.extendedProps.estado ? event.extendedProps.estado : '').toUpperCase();
-  const st = event.start, en = event.end || new Date(st.getTime() + 30*60000);
+  const est = (event.extendedProps?.estado || '').toUpperCase();
+  const st = event.start, en = event.end || new Date(st.getTime()+30*60000);
   const rango = (st ? st.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '') + ' - ' +
                 (en ? en.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '');
 
-  // texto
   document.getElementById('accionResumen').innerHTML =
     `<b>Estado:</b> ${est} &nbsp;·&nbsp; <b>Horario:</b> ${rango}`;
 
-  // toggle botones
-  const btnWL = document.getElementById('btnAccionWL');
-  const btnConfirm = document.getElementById('btnAccionWLConfirm');
-  const btnCancel  = document.getElementById('btnAccionWLCancel');
+  const btnWL     = document.getElementById('btnAccionWL');
+  const btnConfirm= document.getElementById('btnAccionWLConfirm');
+  const btnCancel = document.getElementById('btnAccionWLCancel');
+
+  btnWL.textContent = 'Agregar cita a lista de espera'; // <- crea NUEVA WL (no toca la ocupante)
 
   if(est === 'LISTA_ESPERA'){
     btnWL.style.display = 'none';
@@ -273,6 +269,13 @@ function abrirModalAccion(event){
   $('#modalEventoAccion').appendTo('body').modal({backdrop:true, keyboard:true, show:true});
 }
 
+// Click en "Agregar cita a lista de espera" (crea NUEVA WL con el paciente del form)
+$('#btnAccionWL').off('click').on('click', function(){
+  if(!currentEvent){ return; }
+  $('#modalEventoAccion').modal('hide');
+  crearNuevaWLDesdeEvento(currentEvent);  // <- NUEVA función
+});
+
 // handlers de los botones del modal de acción
 $('#btnAccionVer').off('click').on('click', function(){
   if(!currentEvent){ return; }
@@ -280,11 +283,7 @@ $('#btnAccionVer').off('click').on('click', function(){
   abrirDetalleCita(currentEvent.id);
 });
 
-$('#btnAccionWL').off('click').on('click', function(){
-  if(!currentEvent){ return; }
-  $('#modalEventoAccion').modal('hide');
-  agregarListaEsperaDesdeEvento(currentEvent);
-});
+
 
 // Confirmar y cancelar cuando el evento es LISTA_ESPERA
 $('#btnAccionWLConfirm').off('click').on('click', function(){
@@ -513,16 +512,23 @@ $('#modalCita')
   // WL desde evento ocupado
   window.agregarListaEsperaDesdeEvento = function(event){
     const pacId=$('#paciente_id').val(), idEM=$('#id_especialidad_med').val(), suc=$('#sucursal_id').val();
-    if(!pacId||!idEM||!suc){ swal('Faltan datos','Seleccione paciente, médico y sucursal primero.','warning'); return; }
+    if(!pacId){ swal('Faltan datos','Seleccione un paciente en el formulario.','warning'); return; }
+    if(!idEM){ swal('Faltan datos','Seleccione el médico en el formulario.','warning'); return; }
+    if(!suc){  swal('Faltan datos','No se detecta la sucursal.','warning'); return; }
 
-    const est = (event.extendedProps?.estado || '').toUpperCase();
     const slot = getSlotFromEventOrForm(event);
     if(!slot){ swal('Faltan datos','No se pudo determinar fecha/hora.','warning'); return; }
 
-    // Si es RESERVADO o CONFIRMADA => ACTUALIZAR estado en esa MISMA cita
-    if(est==='RESERVADO' || est==='CONFIRMADA'){
+    // Regla: solo 1 WL por médico+horario
+    hasWaitlistForSlot(idEM, slot).then(existeWL=>{
+      if(existeWL){
+        swal('Aviso','Ya existe una lista de espera para ese horario.','info');
+        return;
+      }
+
+      // Creamos WL nueva, referenciando la cita ocupante (event.id)
       const formData = [
-        {name:'id_cita', value:event.id}, // ← actualizar esa cita
+        {name:'id_cita', value: event.id || ''},   // referenciamos ocupante
         {name:'paciente_id', value: pacId},
         {name:'sucursal_id', value: suc},
         {name:'id_especialidad_med', value: idEM},
@@ -533,19 +539,20 @@ $('#modalCita')
         {name:'force_estado', value:'LISTA_ESPERA'},
         {name:'origen', value:'LISTA_ESPERA'}
       ];
+
       $.post(window.location.href, $.param(formData))
         .done(function(html){
-          if(/(LISTA_ESPERA|actualizada|actualizado)/i.test(html)){
-            swal('OK','La cita pasó a LISTA DE ESPERA.','success');
-            if(window.calendar) calendar.refetchEvents();
+          if(/(LISTA_ESPERA|Cita registrada|actualizada|actualizado)/i.test(html)){
+            swal('OK','Paciente agregado a lista de espera.','success');
+            if(window.calendar) window.calendar.refetchEvents();
           }else{
-            swal('Aviso','No se pudo actualizar la cita.','warning');
-            console.log('RESPUESTA (RES→WL):', html);
+            swal('Aviso','No se pudo registrar en lista de espera.','warning');
+            console.log('RESPUESTA (WL desde evento):', html);
           }
         })
-        .fail(()=>swal('Error','No se pudo actualizar la cita','error'));
-      return;
-    }
+        .fail(()=>swal('Error','No se pudo registrar en lista de espera','error'));
+    });
+  
 
     // Si NO es RESERVADO/CONFIRMADA (hueco) → crear WL vinculada al ocupante si existe
     findExistingCitaId(idEM, slot).then((idCitaOcupante)=>{
@@ -600,6 +607,13 @@ function abrirDetalleCita(idCita){
           <button type="button" id="btnCancelarDesdeWL" class="btn btn-danger">Cancelar</button>
         </div>`;
       $('#btnEditarCita').hide();
+    } else if(estado === 'RESERVADO' || estado === 'CONFIRMADA'){
+      // Botón para ACTUALIZAR esta misma cita a WL (solo desde detalle)
+      extraBtns = `
+        <div class="text-right" style="margin-top:12px">
+          <button type="button" id="btnPasarAWaitlist" class="btn btn-warning">Pasar esta cita a LISTA DE ESPERA</button>
+          <button type="button" id="btnCancelarCitaDet" class="btn btn-danger">Cancelar</button>
+        </div>`;
     } else {
       $('#btnEditarCita').show().off('click').on('click', function(){ window.location.href = SERVER + 'citaeditar/' + idCita + '/'; });
     }
@@ -618,12 +632,33 @@ function abrirDetalleCita(idCita){
       </table>${extraBtns}`;
     $('#detalle-cita-body').html(detalleHTML);
 
-    $('#btnCancelarCita').off('click').on('click', function(){ pedirCancelacion(idCita); });
+    // Cancelar desde detalle (btn rojo alternativo)
+    $('#btnCancelarCita, #btnCancelarCitaDet').off('click').on('click', function(){ pedirCancelacion(idCita); });
 
+    // Si es WL → confirmar/cancelar
     if(estado === 'LISTA_ESPERA'){
       $('#btnCancelarDesdeWL').off('click').on('click', function(){ pedirCancelacion(idCita); });
-      $('#btnConfirmarDesdeWL').off('click').on('click', function(){ confirmarDesdeWaitlist(idCita); }); // <- SOLO ID
+      $('#btnConfirmarDesdeWL').off('click').on('click', function(){ confirmarDesdeWaitlist(idCita); });
     }
+
+    // Si es RES/CONF → pasar ESTA cita a WL (actualiza)
+    $('#btnPasarAWaitlist').off('click').on('click', function(){
+      // (Opcional) Evitar doble WL por médico+slot:
+      // hasWaitlistForSlot(res.id_especialidad_med, { fecha: res.fecha, hi: res.hora_inicio, hf: res.hora_fin })
+      //   .then(existe=>{ if(existe){ swal('Aviso','Ya existe WL en ese horario.','info'); return; } ... });
+
+      $.post(AJAX, { action:'pasar_a_lista_espera', id: idCita }, function(r){
+        if(r && r.ok){
+          swal('OK','La cita pasó a LISTA DE ESPERA.','success');
+          $('#modalCita').modal('hide');
+          if(window.calendar) window.calendar.refetchEvents();
+        }else{
+          swal('Error', (r && r.error) || 'No se pudo actualizar la cita','error');
+        }
+      }, 'json').fail(function(){
+        swal('Error','No se pudo actualizar la cita','error');
+      });
+    });
   })
   .fail(function(xhr){ $('#detalle-cita-body').html('<div class="alert alert-danger">Error de comunicación ('+xhr.status+')</div>'); });
 }
@@ -663,21 +698,83 @@ function confirmarDesdeWaitlist(idCita){
 </script>
 
 <script>
+  // === NUEVA: crear NUEVA WL a partir de un evento RES/CONF, sin modificar la ocupante ===
+function crearNuevaWLDesdeEvento(event){
+  const pacId=$('#paciente_id').val(), idEM=$('#id_especialidad_med').val(), suc=$('#sucursal_id').val();
+  if(!pacId){ swal('Faltan datos','Seleccione un paciente en el formulario.','warning'); return; }
+  if(!idEM){ swal('Faltan datos','Seleccione el médico en el formulario.','warning'); return; }
+  if(!suc){  swal('Faltan datos','No se detecta la sucursal.','warning'); return; }
+
+  const slot = getSlotFromEventOrForm(event);
+  if(!slot){ swal('Faltan datos','No se pudo determinar fecha/hora.','warning'); return; }
+
+  hasWaitlistForSlot(idEM, slot).then(existeWL=>{
+    if(existeWL){ swal('Aviso','Ya existe una lista de espera para ese horario.','info'); return; }
+
+    // OJO: NO mandamos id_cita para no modificar la existente
+    const formData = [
+      {name:'paciente_id', value: pacId},
+      {name:'sucursal_id', value: suc},
+      {name:'id_especialidad_med', value: idEM},
+      {name:'fecha', value: slot.fecha},
+      {name:'hora_inicio', value: slot.hi},
+      {name:'hora_fin', value: slot.hf},
+      {name:'estadoc', value:'LISTA_ESPERA'},
+      {name:'force_estado', value:'LISTA_ESPERA'},
+      {name:'origen', value:'LISTA_ESPERA'}
+    ];
+
+    $.post(window.location.href, $.param(formData))
+      .done(function(html){
+        if(/(LISTA_ESPERA|Cita registrada)/i.test(html)){
+          swal('OK','Paciente agregado a lista de espera.','success');
+          if(window.calendar) window.calendar.refetchEvents();
+        }else{
+          swal('Aviso','No se pudo registrar en lista de espera.','warning');
+          console.log('RESPUESTA (crear WL):', html);
+        }
+      })
+      .fail(()=>swal('Error','No se pudo registrar en lista de espera','error'));
+  });
+}
+
 // --- Helpers: slot e id de cita existente ---
 function getSlotFromEventOrForm(event){
   if(event && event.start){
-    const d = event.start;
-    const e = event.end || new Date(d.getTime()+30*60000);
+    const d = event.start, e = event.end || new Date(d.getTime()+30*60000);
     const fecha = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const hi    = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     const hf    = `${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`;
     return { fecha, hi, hf };
   }
-  // desde form
   const fecha = $('#fecha').val(), hi=$('#hora_inicio').val(), hf=$('#hora_fin').val();
   if(fecha && hi && hf) return { fecha, hi, hf };
   return null;
 }
+
+function hasWaitlistForSlot(idEM, slot){
+  return new Promise((resolve)=>{
+    if(!idEM || !slot){ resolve(false); return; }
+    $.post(AJAX, {
+      action:'listar_citas',
+      id_especialidad_med:idEM,
+      start: `${slot.fecha}T00:00:00`,
+      end:   `${slot.fecha}T23:59:59`
+    }, function(res){
+      try{
+        const arr = (typeof res==='string') ? JSON.parse(res) : (res||[]);
+        const match = arr.find(e=>{
+          const est = (e.extendedProps?.estado || '').toUpperCase();
+          const ei  = e.extendedProps?.hora_inicio || (e.start?.substring(11,16) || '');
+          const ef  = e.extendedProps?.hora_fin    || (e.end  ?.substring(11,16) || '');
+          return est==='LISTA_ESPERA' && ei===slot.hi && ef===slot.hf;
+        });
+        resolve(!!match);
+      }catch(_){ resolve(false); }
+    }, 'json').fail(()=>resolve(false));
+  });
+}
+
 
 /* Busca en el día una cita existente (no LISTA_ESPERA) que coincida en hora_inicio/hora_fin.
    Devuelve el id de la cita si la encuentra; si no, null. */

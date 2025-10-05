@@ -167,6 +167,15 @@ try {
       echo json_encode($res); 
       break;
 
+    case 'pasar_a_lista_espera':
+
+      $id = $_POST['id'] ?? '';
+      if(!$id){ echo json_encode(['ok'=>false,'error'=>'Falta id']); exit; }
+
+      $ok = $agendaCtrl->add_lista_espera_controller($id); // método nuevo o ya existente
+      echo json_encode($ok ? ['ok'=>true] : ['ok'=>false,'error'=>'No se pudo actualizar']);
+    break;
+
 
 
 
