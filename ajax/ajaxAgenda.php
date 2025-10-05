@@ -157,6 +157,16 @@ try {
       echo json_encode(['ok'=>$ok ? true:false, 'error'=>$ok?null:'No se pudo cancelar']);
       break;
 
+    case 'confirmar_desde_espera':
+      // Espera: POST id (id de la cita en LISTA_ESPERA)
+      $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+      if ($id <= 0) {
+        echo json_encode(['ok'=>false,'error'=>'ID inválido']); exit;
+      }
+      $res = $agendaCtrl->confirmar_desde_espera_controller($id);
+      echo json_encode($res); 
+      break;
+
 
 
 

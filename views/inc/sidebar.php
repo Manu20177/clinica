@@ -203,11 +203,7 @@ function isOpenSubMenu($pages, $currentPage) {
 							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Lista de Espera
 						</a>
 					</li>
-					<li>
-						<a href="<?php echo SERVERURL; ?>notificaciones/" class="<?php echo ($currentPage=='notificaciones')?'active':''; ?>">
-							<i class="zmdi zmdi-male-female zmdi-hc-fw"></i> Notificaciones
-						</a>
-					</li>
+					
 				</ul>
 			</li>
 

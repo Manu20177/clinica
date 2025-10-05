@@ -117,6 +117,56 @@ class agendaController extends agendaModel {
         }
     }
 
+    public function add_lista_espera_controller(){
+        $id_cita         = self::clean_string($_POST['id_cita'] ?? '');
+        $sql = "UPDATE citas 
+                SET estado = 'LISTA_ESPERA'
+                    
+                WHERE id = :id
+                LIMIT 1";
+        $st = $this->connect()->prepare($sql);
+        $st->bindValue(':id', $id_cita, PDO::PARAM_INT);
+       
+        return $st->execute();
+       
+
+    }
+
+    public function confirmar_desde_espera_controller(int $id_cita){
+
+        // 1) Traer cita
+        $cita = self::get_cita_by_id($id_cita);
+        if(!$cita){ return ['ok'=>false,'error'=>'Cita no encontrada']; }
+
+        $estado = strtoupper(trim((string)$cita['estado']));
+        if($estado !== 'LISTA_ESPERA'){
+        return ['ok'=>false,'error'=>'La cita no está en lista de espera'];
+        }
+
+        // 2) Validar datos base
+        $hi    = $cita['fecha_inicio'] ?? null;
+        $hf    = $cita['fecha_fin'] ?? null;
+        $idEM  = isset($cita['id_especialidad_med']) ? (int)$cita['id_especialidad_med'] : 0;
+        
+
+        if(empty($hi) || empty($hf) || $idEM<=0){
+        return ['ok'=>false,'error'=>'Faltan datos para confirmar (fecha/hora/médico)'];
+        }
+
+        // 3) Verificar conflicto con RESERVADO/CONFIRMADA en ese rango (excluyendo la propia cita)
+        $hayConflicto = self::existe_conflicto_horario($idEM,$hi, $hf, $id_cita);
+        if($hayConflicto){
+        return ['ok'=>false,'error'=>'El horario está ocupado. No se puede confirmar.'];
+        }
+
+        // 4) Confirmar
+        $ok = self::update_estado_cita($id_cita, 'CONFIRMADA');
+
+        if(!$ok){ return ['ok'=>false,'error'=>'No se pudo actualizar el estado']; }
+
+        return ['ok'=>true, 'msg'=>'Cita confirmada', 'id'=>$id_cita];
+    }
+
     /* Cargar especialidades (devuelve <option>) */
     public function load_especialidades_controller($sucursal_id=null){
         $rows = self::load_especialidades_model($sucursal_id);

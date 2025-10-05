@@ -139,7 +139,7 @@ class agendaModel extends mainModel {
                 JOIN usuarios u            ON u.Codigo           = me.medico_codigo
                 JOIN especialidades e      ON e.id               = me.especialidad_id
                 WHERE c.id_especialidad_med = :id_em
-                AND c.estado IN ('RESERVADO','CONFIRMADA')
+                AND c.estado IN ('RESERVADO','CONFIRMADA','LISTA_ESPERA')
                 AND NOT (c.fecha_fin   <= :p_start OR c.fecha_inicio >= :p_end)
                 ORDER BY c.fecha_inicio ASC";
 
@@ -250,4 +250,113 @@ class agendaModel extends mainModel {
     }
 
 
+    public function get_cita_by_id(int $id){
+    $sql = "SELECT c.*
+                FROM citas c
+            WHERE c.id = :id
+            LIMIT 1";
+    $st = self::connect()->prepare($sql);
+    $st->execute([':id'=>$id]);
+    return $st->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Verifica si existe conflicto de horario para un id_especialidad_med.
+     * Recibe fecha (Y-m-d) + hi/hf (HH:ii) por compatibilidad,
+     * pero consulta contra DATETIME: fecha_inicio / fecha_fin.
+     * Cuenta RESERVADO o CONFIRMADA que se crucen con [start,end).
+     * Si $excluirId>0, las excluye del conteo.
+     */
+    public function existe_conflicto_horario(int $idEM, string $start, string $end, int $excluirId = 0): bool {
+
+
+    $params = [
+        ':idEM'  => $idEM,
+        ':start' => $start,
+        ':end'   => $end
+    ];
+
+    $sql = "SELECT COUNT(*) AS n
+                FROM citas
+            WHERE id_especialidad_med = :idEM
+                AND estado IN ('RESERVADO','CONFIRMADA')
+                AND NOT (fecha_fin <= :end OR fecha_inicio >= :start)";
+
+    if($excluirId > 0){
+        $sql .= " AND id <> :excluir";
+        $params[':excluir'] = $excluirId;
+    }
+
+    $st = self::connect()->prepare($sql);
+    $st->execute($params);
+    return ((int)$st->fetchColumn()) > 0;
+    }
+
+    /**
+     * Actualiza el estado de la cita. Puedes extender para guardar metadata.
+     * $extras opcional: ['confirmada_en'=>..., 'confirmada_por'=>..., 'actualizado_en'=>...]
+     */
+    public function update_estado_cita(int $id, string $nuevoEstado) {
+    $params = [':estado'=>$nuevoEstado, ':id'=>$id];
+
+    $sql = "UPDATE citas SET estado= :estado WHERE id = :id";
+    $st  = self::connect()->prepare($sql);
+    return $st->execute($params);
+    }
+
+    /**
+     * Confirmar una cita que está en LISTA_ESPERA (sin transacciones).
+     * 1) Lee la cita
+     * 2) Verifica que esté en LISTA_ESPERA
+     * 3) Verifica conflicto contra RESERVADO/CONFIRMADA en el mismo rango
+     * 4) Actualiza a CONFIRMADA
+     */
+    public function confirmar_desde_espera(int $id): array {
+    // 1) Traer cita
+    $cita = $this->get_cita_by_id($id);
+    if(!$cita){
+        return ['ok'=>false,'error'=>'Cita no encontrada'];
+    }
+
+    // 2) Debe estar en lista de espera
+    if(strtoupper($cita['estado']) !== 'LISTA_ESPERA'){
+        return ['ok'=>false,'error'=>'La cita no está en lista de espera'];
+    }
+
+    // 3) Validar conflicto (usa DATETIME ya guardado)
+    $idEM  = (int)$cita['id_especialidad_med'];
+    $start = $cita['fecha_inicio']; // Y-m-d H:i:s
+    $end   = $cita['fecha_fin'];    // Y-m-d H:i:s
+
+    $sqlConf = "SELECT 1
+                    FROM citas
+                WHERE id_especialidad_med = :idEM
+                    AND estado IN ('RESERVADO','CONFIRMADA')
+                    AND id <> :id
+                    AND NOT (fecha_fin <= :start OR fecha_inicio >= :end)
+                LIMIT 1";
+    $st = self::connect()->prepare($sqlConf);
+    $st->execute([
+        ':idEM'=>$idEM,
+        ':id'=>$id,
+        ':start'=>$start,
+        ':end'=>$end
+    ]);
+    if($st->fetch()){
+        return ['ok'=>false,'error'=>'El horario está ocupado. No se puede confirmar.'];
+    }
+
+    // 4) Actualizar a CONFIRMADA
+    $ok = $this->update_estado_cita($id, 'CONFIRMADA', [
+        'confirmada_en'  => date('Y-m-d H:i:s'),
+        'confirmada_por' => isset($_SESSION['nombre_usuario']) ? $_SESSION['nombre_usuario'] : 'Sistema',
+        'actualizado_en' => date('Y-m-d H:i:s')
+    ]);
+
+    if(!$ok){
+        return ['ok'=>false,'error'=>'No se pudo actualizar el estado'];
+    }
+
+    return ['ok'=>true,'id'=>$id,'msg'=>'Cita confirmada'];
+    }
 }
